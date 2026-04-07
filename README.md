@@ -1,6 +1,14 @@
-# FormDesk backend foundation
+# FormDesk
 
-This repository contains the FormDesk Nuxt backend foundation with Drizzle ORM and Neon PostgreSQL.
+This repository contains the complete FormDesk foundation built with Nuxt 4,
+Nuxt UI v4, Tailwind CSS v4, Drizzle ORM, and Neon PostgreSQL.
+
+Included in this codebase:
+
+- Marketing landing page in [`app/app.vue`](app/app.vue)
+- Database schema and migration for workspaces, forms, submissions, and users
+- Submission API with CORS support in `server/api/submit/[formId].post.ts`
+- Embeddable Shadow DOM widget in `public/widget.js`
 
 ## Local development
 
