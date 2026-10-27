@@ -23,10 +23,12 @@ Légende : 🧑 = action manuelle (compte, configuration, décision) · 💻 = d
   - KnockBox : `knockbox.app` ✅
   - FormNook : `formnook.app` ✅
   - StaticBox : `staticbox.app` ✅, `staticbox.dev` ✅
-- [ ] 🧑 Valider le nom définitif
+- [x] 🧑 Valider le nom définitif → **StaticDesk**
 - [ ] 🧑 Rechercher des marques déposées sur le nom retenu (INPI, EUIPO, USPTO)
 - [ ] 🧑 Vérifier que les handles sont libres : GitHub org, npm (`@staticdesk/*`), X/Twitter, Bluesky, Mastodon, LinkedIn, Product Hunt, Discord
-- [ ] 🧑 Acheter `staticdesk.app` et `staticdesk.dev` (`.dev` pour la doc et la démo, ou en redirection)
+- [ ] 🧑 Enregistrer `staticdesk.app` via le domaine offert avec Vercel Pro (encore disponible au 27/10/2026)
+- [ ] 🧑 (Optionnel) Acheter `staticdesk.dev` pour la doc et la démo, ou en redirection
+- [ ] 🧑 Renommer le dépôt GitHub `formdesk` en `staticdesk` (GitHub redirige l'ancienne URL)
 - [ ] 🧑 Déposer la marque (optionnel au départ, à faire avant le lancement public)
 
 ### Décisions produit et techniques
