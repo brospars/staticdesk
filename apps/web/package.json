@@ -17,6 +17,8 @@
   },
   "dependencies": {
     "@nuxt/ui": "^4.12.0",
+    "@nuxtjs/supabase": "^2.1.0",
+    "@staticdesk/core": "workspace:*",
     "nuxt": "^4.6.3",
     "tailwindcss": "^4.3.3"
   },

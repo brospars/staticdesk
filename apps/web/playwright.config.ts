@@ -24,5 +24,10 @@ export default defineConfig({
     command: 'node .output/server/index.mjs',
     port,
     reuseExistingServer: !process.env.CI,
+    env: {
+      // Public pages do not query Supabase; local defaults let the app boot.
+      NUXT_PUBLIC_SUPABASE_URL: process.env.NUXT_PUBLIC_SUPABASE_URL ?? 'http://127.0.0.1:54321',
+      NUXT_PUBLIC_SUPABASE_KEY: process.env.NUXT_PUBLIC_SUPABASE_KEY ?? 'e2e-placeholder-key',
+    },
   },
 })
