@@ -65,13 +65,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: supabase/setup-cli@v1
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
         with:
-          version: 2.122.0
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
       # Starts only Postgres and applies every migration.
-      - run: supabase db start
-      - run: supabase test db
+      - run: pnpm exec supabase db start
+      - run: pnpm db:test
       - name: Check generated database types are up to date
         run: |
-          supabase gen types typescript --local --schema public > packages/core/src/database.types.ts
+          pnpm db:types
           git diff --exit-code -- packages/core/src/database.types.ts
