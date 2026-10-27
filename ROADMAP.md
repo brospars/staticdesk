@@ -123,7 +123,7 @@ Légende : 🧑 = action manuelle (compte, configuration, décision) · 💻 = d
 - [ ] 💻 `widgets` (type : contact / comments / reactions / reviews ; configuration JSON)
 - [ ] 💻 `threads` et `messages` (boîte partagée : statut, assignation, labels, direction in/out)
 - [ ] 💻 `contacts` (visiteurs identifiés par email)
-- [ ] 💻 `comments` (page_url / page_id, parent_id, statut de modération, auteur)
+- [ ] 💻 `comments` (page_url / page_id, parent_id, statut de modération, auteur nullable, flag `is_anonymous`, hash du jeton d'édition, empreinte salée)
 - [ ] 💻 `reactions` (likes, emoji, upvotes par page)
 - [ ] 💻 `reviews` (note 1 à 5, texte, statut)
 - [ ] 💻 `auto_replies` (règles, modèles, délais)
@@ -195,7 +195,12 @@ Légende : 🧑 = action manuelle (compte, configuration, décision) · 💻 = d
 
 ### Commentaires
 - [ ] 💻 Fil par page, réponses imbriquées (2 niveaux), tri, pagination
-- [ ] 💻 Identité : anonyme (nom + email), GitHub OAuth, ou lien magique par email
+- [ ] 💻 Identité : invité (pseudo + email facultatif), GitHub OAuth, ou lien magique par email
+- [ ] 💻 **Publication 100 % anonyme** (commentaires et likes) : aucun nom ni email exigé, pseudo auto-généré (« Visiteur #a1b2 ») ou facultatif
+  - [ ] 💻 Réglages par site : autoriser ou non l'anonyme, pré-modération forcée pour les anonymes, Turnstile obligatoire pour les anonymes
+  - [ ] 💻 Jeton secret d'auteur stocké en `localStorage` pour modifier ou supprimer son propre post anonyme (fenêtre limitée)
+  - [ ] 💻 Anti-abus renforcé : rate limiting plus strict, détection de liens et de spam, blocage par empreinte (hash IP salé) depuis le dashboard
+  - [ ] 💻 Badge « anonyme » dans l'UI et dans la file de modération, sans exposer d'IP ni d'empreinte aux autres visiteurs
 - [ ] 💻 Rendu Markdown sécurisé (sanitization), aperçu
 - [ ] 💻 Modération : pré-modération ou post-modération, liste de mots interdits, file de modération dans le dashboard, signalement
 - [ ] 💻 Notifications de réponse par email au commentateur, avec désabonnement
@@ -206,6 +211,7 @@ Légende : 🧑 = action manuelle (compte, configuration, décision) · 💻 = d
 - [ ] 💻 « Cette page vous a-t-elle aidé ? 👍 / 👎 » avec un commentaire optionnel (feedback de documentation)
 - [ ] 💻 Réactions emoji par page, compteur public
 - [ ] 💻 Déduplication sans cookie (hash IP + UA + page, salé et rotatif)
+- [ ] 💻 Likes anonymes par défaut (aucun compte requis), retrait possible par le même visiteur
 
 ### Avis
 - [ ] 💻 Note de 1 à 5 avec texte, modération avant publication
