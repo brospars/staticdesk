@@ -19,6 +19,8 @@
     "@nuxt/ui": "^4.12.0",
     "@nuxtjs/supabase": "^2.1.0",
     "@staticdesk/core": "workspace:*",
+    "@vueuse/core": "^15.0.0",
+    "@vueuse/nuxt": "^15.0.0",
     "nuxt": "^4.6.3",
     "tailwindcss": "^4.3.3",
     "zod": "^4.6.7"

@@ -1,85 +1,82 @@
 <script setup lang="ts">
-import type { FormSubmitEvent } from '@nuxt/ui'
-import { slugify, workspaceSchema, type WorkspaceInput } from '@staticdesk/core'
+import type { StepperItem } from '@nuxt/ui'
+import type { WidgetKind } from '@staticdesk/core'
 
 useSeoMeta({ title: 'Get started · StaticDesk', robots: 'noindex' })
 
-const supabase = useSupabaseClient()
-const toast = useToast()
-const { refresh, select } = useWorkspaces()
+const { current, ensureLoaded, refresh, select } = useWorkspaces()
+await ensureLoaded()
 
-const state = reactive<WorkspaceInput>({ name: '', slug: '' })
-const slugTouched = ref(false)
+const items: StepperItem[] = [
+  { title: 'Workspace', icon: 'i-lucide-building-2' },
+  { title: 'Site', icon: 'i-lucide-globe' },
+  { title: 'Widget', icon: 'i-lucide-layout-template' },
+  { title: 'Install', icon: 'i-lucide-code' },
+]
 
-watch(() => state.name, (name) => {
-  if (!slugTouched.value) state.slug = slugify(name)
-})
+const step = ref(current.value ? 1 : 0)
+const site = ref<{ id: string, publicKey: string } | null>(null)
+const kind = ref<WidgetKind | null>(null)
 
-async function createWorkspace(event: FormSubmitEvent<WorkspaceInput>) {
-  const { data, error } = await supabase.rpc('create_workspace', event.data)
-  if (error) {
-    const taken = error.code === '23505'
-    toast.add({
-      title: taken ? 'This ID is already taken' : 'Could not create the workspace',
-      description: taken ? 'Pick another workspace ID.' : error.message,
-      color: 'error',
-    })
-    return
-  }
-  select(data.id)
+const descriptions = [
+  'A workspace groups your sites, widgets and team.',
+  'Which site will use StaticDesk?',
+  'Pick your first widget. You can add others later.',
+  'Add the widget to your site.',
+]
+
+async function onWorkspaceCreated(id: string) {
+  select(id)
   await refresh()
-  await navigateTo('/app')
+  step.value = 1
+}
+
+function onSiteCreated(created: { id: string, publicKey: string }) {
+  site.value = created
+  step.value = 2
+}
+
+function onWidgetCreated(created: WidgetKind) {
+  kind.value = created
+  step.value = 3
 }
 </script>
 
 <template>
-  <div class="flex min-h-screen items-center justify-center px-4">
-    <UPageCard
-      class="w-full max-w-lg"
-      title="Create your workspace"
-      description="A workspace groups your sites, widgets and team."
-      icon="i-lucide-building-2"
-    >
-      <UForm
-        :schema="workspaceSchema"
-        :state="state"
-        class="space-y-4"
-        @submit="createWorkspace"
+  <div class="flex min-h-screen items-center justify-center px-4 py-12">
+    <div class="w-full max-w-xl space-y-8">
+      <UStepper
+        v-model="step"
+        :items="items"
+        disabled
+      />
+
+      <UPageCard
+        :title="items[step]?.title"
+        :description="descriptions[step]"
       >
-        <UFormField
-          label="Workspace name"
-          name="name"
-          required
-        >
-          <UInput
-            v-model="state.name"
-            placeholder="Acme Docs"
-            autofocus
-            class="w-full"
-          />
-        </UFormField>
-
-        <UFormField
-          label="Workspace ID"
-          name="slug"
-          help="Unique identifier: lowercase letters, numbers and dashes."
-          required
-        >
-          <UInput
-            v-model="state.slug"
-            class="w-full"
-            @update:model-value="slugTouched = true"
-          />
-        </UFormField>
-
-        <UButton
-          type="submit"
-          block
-          loading-auto
-        >
-          Create workspace
-        </UButton>
-      </UForm>
-    </UPageCard>
+        <OnboardingWorkspaceStep
+          v-if="step === 0"
+          @created="onWorkspaceCreated"
+        />
+        <OnboardingSiteStep
+          v-else-if="step === 1 && current"
+          :workspace-id="current.id"
+          @created="onSiteCreated"
+        />
+        <OnboardingWidgetStep
+          v-else-if="step === 2 && current && site"
+          :workspace-id="current.id"
+          :site-id="site.id"
+          @created="onWidgetCreated"
+        />
+        <OnboardingInstallStep
+          v-else-if="step === 3 && site && kind"
+          :site-id="site.id"
+          :public-key="site.publicKey"
+          :kind="kind"
+        />
+      </UPageCard>
+    </div>
   </div>
 </template>

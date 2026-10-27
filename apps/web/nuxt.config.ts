@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url'
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  modules: ['@nuxt/eslint', '@nuxt/ui', '@nuxtjs/supabase'],
+  modules: ['@nuxt/eslint', '@nuxt/ui', '@nuxtjs/supabase', '@vueuse/nuxt'],
   devtools: { enabled: true },
   css: ['~/assets/css/main.css'],
   runtimeConfig: {
@@ -11,6 +11,8 @@ export default defineNuxtConfig({
       edition: 'selfhost',
       // OAuth providers enabled in Supabase Auth, comma-separated: 'github,google'.
       authProviders: '',
+      // Public URL of this app (serves widget.js). Defaults to the request origin.
+      appUrl: '',
     },
   },
   compatibilityDate: '2026-10-27',
