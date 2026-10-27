@@ -9,6 +9,8 @@ export default defineNuxtConfig({
     public: {
       // 'saas' enables billing and quotas; 'selfhost' disables them.
       edition: 'selfhost',
+      // OAuth providers enabled in Supabase Auth, comma-separated: 'github,google'.
+      authProviders: '',
     },
   },
   compatibilityDate: '2026-10-27',
