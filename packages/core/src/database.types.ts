@@ -362,7 +362,12 @@ isOneToOne: false
         to: "workspaces"
         isOneToOne: true
         isSetofReturn: false
-      } }
+      } },
+"workspace_members":
+{ Args: { "ws": string }; Returns: {
+              "email": string,"joined_at": string,"role": Database["public"]['Enums']["member_role"],"user_id": string
+            }[]
+                           }
           }
           Enums: {
             "auto_reply_trigger": "new_thread"|"outside_hours","event_type": "view"|"open"|"submit"|"comment"|"reaction"|"review","member_role": "owner"|"admin"|"member","message_direction": "inbound"|"outbound"|"note","moderation_status": "pending"|"approved"|"rejected"|"spam","plan": "free"|"pro"|"team","thread_status": "open"|"pending"|"resolved","widget_kind": "contact"|"comments"|"reactions"|"reviews"

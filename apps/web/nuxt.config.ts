@@ -6,6 +6,12 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   css: ['~/assets/css/main.css'],
   runtimeConfig: {
+    // Email: 'resend' sends through Resend; 'log' prints emails to the console (development).
+    mail: {
+      driver: 'log',
+      from: 'StaticDesk <notifications@staticdesk.app>',
+      resendApiKey: '',
+    },
     public: {
       // 'saas' enables billing and quotas; 'selfhost' disables them.
       edition: 'selfhost',

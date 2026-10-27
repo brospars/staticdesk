@@ -3,7 +3,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
 
-select plan(25);
+select plan(27);
 
 -- Fixtures -------------------------------------------------------------------
 
@@ -140,6 +140,20 @@ select throws_ok(
   '23514',
   null,
   'the last owner cannot leave the workspace'
+);
+
+-- Members list -------------------------------------------------------------------
+
+select pg_temp.login('00000000-0000-0000-0000-00000000000c');
+select is(
+  (select count(*)::int from public.workspace_members((select workspace_id from fixture))),
+  3,
+  'a member can list the members of their workspace'
+);
+select pg_temp.login('00000000-0000-0000-0000-00000000000d');
+select is_empty(
+  $$ select * from public.workspace_members((select workspace_id from fixture)) $$,
+  'an outsider cannot list members'
 );
 
 -- Community content ------------------------------------------------------------

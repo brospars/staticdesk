@@ -28,5 +28,21 @@ async function signOut() {
     <p class="mt-4 text-muted">
       Signed in as {{ user?.email }}
     </p>
+    <div class="mt-6 flex gap-3">
+      <UButton
+        to="/app/onboarding"
+        icon="i-lucide-plus"
+      >
+        Add a site
+      </UButton>
+      <UButton
+        to="/app/settings/members"
+        color="neutral"
+        variant="outline"
+        icon="i-lucide-users"
+      >
+        Members
+      </UButton>
+    </div>
   </UContainer>
 </template>

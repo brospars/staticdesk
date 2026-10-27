@@ -12,3 +12,8 @@ test('login form validates the email', async ({ page }) => {
   await page.getByRole('button', { name: 'Send magic link' }).click()
   await expect(page.getByText('Enter a valid email address')).toBeVisible()
 })
+
+test('invitation links ask visitors to sign in first', async ({ page }) => {
+  await page.goto('/invite/some-token')
+  await expect(page).toHaveURL(/\/login$/)
+})
