@@ -1,46 +1,12 @@
-# FormDesk
+# StaticDesk
 
-This repository contains the complete FormDesk foundation built with Nuxt 4,
-Nuxt UI v4, Tailwind CSS v4, Drizzle ORM, and Neon PostgreSQL.
+Formulaires et interactions embarquables pour les sites statiques (GitHub Pages,
+GitLab Pages, MkDocs, Docusaurus, Jekyll, Hugo, VitePress, Astro…) : formulaire de
+contact, commentaires, likes, avis, boîte mail partagée, réponses automatiques et
+analytics simples. Disqus + Crisp/Intercom, sans le live chat.
 
-Included in this codebase:
+Open source, auto-hébergeable gratuitement, ou en SaaS payant.
 
-- Marketing landing page in [`app/app.vue`](app/app.vue)
-- Database schema and migration for workspaces, forms, submissions, and users
-- Submission API with CORS support in `server/api/submit/[formId].post.ts`
-- Embeddable Shadow DOM widget in `public/widget.js`
+**Stack** : Nuxt 4 · Nuxt UI 4 · Vercel · Supabase · Resend · Stripe
 
-## Local development
-
-Install dependencies:
-
-```bash
-npm install
-```
-
-Run the Nuxt app:
-
-```bash
-npm run dev
-```
-
-## Database
-
-Generate and apply migrations:
-
-```bash
-npm run db:generate
-npm run db:migrate
-```
-
-## Submission API
-
-Send a JSON `POST` request to `/api/submit/:formId`:
-
-```json
-{
-  "name": "Ada Lovelace",
-  "email": "ada@example.com",
-  "message": "Hello from FormDesk"
-}
-```
+> Projet en phase de démarrage : voir la [roadmap](ROADMAP.md).
