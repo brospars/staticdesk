@@ -71,3 +71,7 @@ jobs:
       # Starts only Postgres and applies every migration.
       - run: supabase db start
       - run: supabase test db
+      - name: Check generated database types are up to date
+        run: |
+          supabase gen types typescript --local --schema public > packages/core/src/database.types.ts
+          git diff --exit-code -- packages/core/src/database.types.ts
