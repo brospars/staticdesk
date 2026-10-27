@@ -1,0 +1,30 @@
+# dependencies
+node_modules/
+
+# build outputs
+.output/
+.nuxt/
+.nitro/
+.cache/
+dist/
+.turbo/
+
+# tests
+coverage/
+playwright-report/
+test-results/
+
+# env
+.env
+.env.*
+!.env.example
+
+# supabase
+supabase/.branches/
+supabase/.temp/
+
+# misc
+.DS_Store
+*.log
+.vercel/
+.idea/
