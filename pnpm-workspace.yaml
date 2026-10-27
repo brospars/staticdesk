@@ -7,3 +7,4 @@ onlyBuiltDependencies:
   - esbuild
   - vue-demi
   - '@parcel/watcher'
+  - supabase

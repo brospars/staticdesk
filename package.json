@@ -14,10 +14,16 @@
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "changeset": "changeset",
-    "version-packages": "changeset version"
+    "version-packages": "changeset version",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset",
+    "db:migration": "supabase migration new",
+    "db:types": "supabase gen types typescript --local --schema public > packages/core/src/database.types.ts"
   },
   "devDependencies": {
     "@changesets/cli": "^3.0.3",
+    "supabase": "^2.122.0",
     "turbo": "^2.11.10"
   }
 }
