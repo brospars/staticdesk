@@ -1,0 +1,38 @@
+name: Bug report
+description: Something does not work as expected
+labels: [bug]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: What did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Embed the widget on…
+        2. Click…
+    validations:
+      required: true
+  - type: dropdown
+    id: edition
+    attributes:
+      label: Edition
+      options:
+        - Hosted (staticdesk.app)
+        - Self-hosted
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Site generator and browser
+      placeholder: Docusaurus 3.9, Firefox 140
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots

@@ -1,12 +1,46 @@
 # StaticDesk
 
-Formulaires et interactions embarquables pour les sites statiques (GitHub Pages,
-GitLab Pages, MkDocs, Docusaurus, Jekyll, Hugo, VitePress, Astro…) : formulaire de
-contact, commentaires, likes, avis, boîte mail partagée, réponses automatiques et
-analytics simples. Disqus + Crisp/Intercom, sans le live chat.
+Embeddable contact forms, comments, likes and reviews for static sites
+(GitHub Pages, GitLab Pages, MkDocs, Docusaurus, Jekyll, Hugo, VitePress, Astro…),
+with a shared inbox, auto-replies and simple analytics.
+Think Disqus + Crisp/Intercom, without the live chat.
 
-Open source, auto-hébergeable gratuitement, ou en SaaS payant.
+Open source and free to self-host, or use the hosted SaaS.
 
-**Stack** : Nuxt 4 · Nuxt UI 4 · Vercel · Supabase · Resend · Stripe
+> **Status:** early development. See the [roadmap](ROADMAP.md) (in French).
 
-> Projet en phase de démarrage : voir la [roadmap](ROADMAP.md).
+## Stack
+
+Nuxt 4 · Nuxt UI 4 · Supabase · Resend · Stripe · Vercel
+
+## Repository layout
+
+| Path | Description |
+| --- | --- |
+| `apps/web` | Nuxt app: landing page, dashboard and API |
+| `packages/core` | Shared Zod schemas and types |
+| `packages/widget` | Browser SDK (`widget.js`), Shadow DOM web components |
+
+## Development
+
+Requirements: Node.js 22+, pnpm 10 (`corepack enable`).
+
+```bash
+pnpm install
+pnpm dev          # start the web app on http://localhost:3000
+pnpm lint
+pnpm typecheck
+pnpm test         # unit tests in every package
+pnpm build
+
+# end-to-end tests (after `pnpm build`)
+pnpm --filter @staticdesk/web test:e2e
+```
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Security issues: see [SECURITY.md](SECURITY.md).
+
+## License
+
+[AGPL-3.0](LICENSE)
