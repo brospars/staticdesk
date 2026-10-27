@@ -30,6 +30,7 @@ pnpm install
 pnpm db:start     # local Supabase (Postgres, Auth, Studio…) via Docker
 pnpm db:reset     # re-apply migrations and seed
 pnpm db:types     # regenerate database types into packages/core
+pnpm db:test      # pgTAP tests (row level security)
 pnpm dev          # start the web app on http://localhost:3000
 pnpm lint
 pnpm typecheck
