@@ -96,46 +96,46 @@ Légende : 🧑 = action manuelle (compte, configuration, décision) · 💻 = d
 ## Phase 2 : fondations du projet
 
 ### Monorepo
-- [ ] 💻 Initialiser un monorepo pnpm + Turborepo :
+- [x] 💻 Initialiser un monorepo pnpm + Turborepo (`apps/docs` et `packages/integrations/*` restent à créer) :
   - `apps/web` : Nuxt 4 (landing, dashboard, API)
   - `apps/docs` : documentation (Nuxt Content / Docus, ou VitePress)
   - `packages/widget` : SDK navigateur en vanilla TS, Web Components et Shadow DOM, bundlé avec Vite en lib
   - `packages/core` : types, schémas Zod et client API partagés
   - `packages/integrations/*` : plugins pour les frameworks (phase 9)
-- [ ] 💻 Scaffolder Nuxt 4 + Nuxt UI 4 (`main.css` avec `@import "tailwindcss"; @import "@nuxt/ui";`)
-- [ ] 💻 Activer TypeScript strict, ESLint (`@nuxt/eslint`) et Prettier, ou passer par ESLint stylistic
-- [ ] 💻 Tests : Vitest (unitaires), `@nuxt/test-utils`, Playwright (e2e et widget sur une page statique de test)
-- [ ] 💻 CI GitHub Actions : lint, typecheck, tests, build, taille du bundle widget (budget **< 15 kB gzip** pour le loader)
-- [ ] 💻 Conventional commits, Changesets pour versionner les paquets npm, Renovate ou Dependabot
-- [ ] 💻 Fichiers communautaires : `README`, `LICENSE`, `CONTRIBUTING`, `CODE_OF_CONDUCT`, `SECURITY.md`, templates d'issues et de PR
-- [ ] 💻 Rédiger `AGENTS.md` / `CLAUDE.md` à jour (stack, commandes, conventions)
+- [x] 💻 Scaffolder Nuxt 4 + Nuxt UI 4 (`main.css` avec `@import "tailwindcss"; @import "@nuxt/ui";`)
+- [x] 💻 Activer TypeScript strict, ESLint (`@nuxt/eslint`) et Prettier, ou passer par ESLint stylistic → ESLint stylistic retenu
+- [x] 💻 Tests : Vitest (unitaires), `@nuxt/test-utils`, Playwright (e2e et widget sur une page statique de test)
+- [x] 💻 CI GitHub Actions : lint, typecheck, tests, build, taille du bundle widget (budget **< 15 kB gzip** pour le loader)
+- [x] 💻 Conventional commits, Changesets pour versionner les paquets npm, Renovate ou Dependabot
+- [x] 💻 Fichiers communautaires : `README`, `LICENSE`, `CONTRIBUTING`, `CODE_OF_CONDUCT`, `SECURITY.md`, templates d'issues et de PR
+- [x] 💻 Rédiger `AGENTS.md` / `CLAUDE.md` à jour (stack, commandes, conventions)
 
 ### Supabase local
-- [ ] 💻 Utiliser la CLI Supabase (`supabase init`, `supabase start`), avec les migrations versionnées dans `supabase/migrations`
-- [ ] 💻 Générer les types TS (`supabase gen types`) dans la CI
-- [ ] 💻 Écrire un seed de développement (un workspace, un site, des formulaires et des messages factices)
-- [ ] 💻 Mettre en place `@nuxtjs/supabase` ou un client maison côté serveur (clé service-role **uniquement** côté serveur)
+- [x] 💻 Utiliser la CLI Supabase (`supabase init`, `supabase start`), avec les migrations versionnées dans `supabase/migrations`
+- [x] 💻 Générer les types TS (`supabase gen types`) dans la CI
+- [x] 💻 Écrire un seed de développement (un workspace, un site, des formulaires et des messages factices)
+- [x] 💻 Mettre en place `@nuxtjs/supabase` ou un client maison côté serveur (clé service-role **uniquement** côté serveur)
 
 ### Modèle de données (v1)
-- [ ] 💻 `workspaces` (plan, `stripe_customer_id`, quotas)
-- [ ] 💻 `members` (user ↔ workspace, rôle : owner / admin / member)
-- [ ] 💻 `sites` (domaine(s) autorisé(s), clé publique, réglages, thème)
-- [ ] 💻 `widgets` (type : contact / comments / reactions / reviews ; configuration JSON)
-- [ ] 💻 `threads` et `messages` (boîte partagée : statut, assignation, labels, direction in/out)
-- [ ] 💻 `contacts` (visiteurs identifiés par email)
-- [ ] 💻 `comments` (page_url / page_id, parent_id, statut de modération, auteur nullable, flag `is_anonymous`, hash du jeton d'édition, empreinte salée)
-- [ ] 💻 `reactions` (likes, emoji, upvotes par page)
-- [ ] 💻 `reviews` (note 1 à 5, texte, statut)
-- [ ] 💻 `auto_replies` (règles, modèles, délais)
-- [ ] 💻 `events` (pages vues du widget, ouvertures, envois, pour les analytics)
-- [ ] 💻 `subscriptions` (miroir de Stripe)
-- [ ] 💻 **Row Level Security** sur toutes les tables, avec des tests de policies (pgTAP ou tests d'intégration)
+- [x] 💻 `workspaces` (plan, `stripe_customer_id`, quotas)
+- [x] 💻 `members` (user ↔ workspace, rôle : owner / admin / member)
+- [x] 💻 `sites` (domaine(s) autorisé(s), clé publique, réglages, thème)
+- [x] 💻 `widgets` (type : contact / comments / reactions / reviews ; configuration JSON)
+- [x] 💻 `threads` et `messages` (boîte partagée : statut, assignation, labels, direction in/out)
+- [x] 💻 `contacts` (visiteurs identifiés par email)
+- [x] 💻 `comments` (page_url / page_id, parent_id, statut de modération, auteur nullable, flag `is_anonymous`, hash du jeton d'édition, empreinte salée)
+- [x] 💻 `reactions` (likes, emoji, upvotes par page)
+- [x] 💻 `reviews` (note 1 à 5, texte, statut)
+- [x] 💻 `auto_replies` (règles, modèles, délais)
+- [x] 💻 `events` (pages vues du widget, ouvertures, envois, pour les analytics)
+- [x] 💻 `subscriptions` (miroir de Stripe)
+- [x] 💻 **Row Level Security** sur toutes les tables, avec des tests de policies (pgTAP ou tests d'intégration)
 
 ### Auth et onboarding
-- [ ] 💻 Connexion par magic link, GitHub et Google
-- [ ] 💻 Création du workspace au premier login
-- [ ] 💻 Invitation de membres par email (Resend)
-- [ ] 💻 Onboarding : créer un site, choisir un widget, copier le snippet, vérifier l'installation (« premier événement reçu »)
+- [x] 💻 Connexion par magic link, GitHub et Google
+- [x] 💻 Création du workspace au premier login
+- [x] 💻 Invitation de membres par email (Resend)
+- [x] 💻 Onboarding : créer un site, choisir un widget, copier le snippet, vérifier l'installation (« premier événement reçu », actif une fois que le widget enverra des événements en phase 3)
 
 ---
 
