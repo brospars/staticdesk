@@ -1,46 +1,50 @@
-# FormDesk
+# StaticDesk
 
-This repository contains the complete FormDesk foundation built with Nuxt 4,
-Nuxt UI v4, Tailwind CSS v4, Drizzle ORM, and Neon PostgreSQL.
+Embeddable contact forms, comments, likes and reviews for static sites
+(GitHub Pages, GitLab Pages, MkDocs, Docusaurus, Jekyll, Hugo, VitePress, Astro…),
+with a shared inbox, auto-replies and simple analytics.
+Think Disqus + Crisp/Intercom, without the live chat.
 
-Included in this codebase:
+Open source and free to self-host, or use the hosted SaaS.
 
-- Marketing landing page in [`app/app.vue`](app/app.vue)
-- Database schema and migration for workspaces, forms, submissions, and users
-- Submission API with CORS support in `server/api/submit/[formId].post.ts`
-- Embeddable Shadow DOM widget in `public/widget.js`
+> **Status:** early development. See the [roadmap](ROADMAP.md) (in French).
 
-## Local development
+## Stack
 
-Install dependencies:
+Nuxt 4 · Nuxt UI 4 · Supabase · Resend · Stripe · Vercel
 
-```bash
-npm install
-```
+## Repository layout
 
-Run the Nuxt app:
+| Path | Description |
+| --- | --- |
+| `apps/web` | Nuxt app: landing page, dashboard and API |
+| `packages/core` | Shared Zod schemas and types |
+| `packages/widget` | Browser SDK (`widget.js`), Shadow DOM web components |
 
-```bash
-npm run dev
-```
+## Development
 
-## Database
-
-Generate and apply migrations:
+Requirements: Node.js 22+, pnpm 10 (`corepack enable`), Docker (for local Supabase).
 
 ```bash
-npm run db:generate
-npm run db:migrate
+pnpm install
+pnpm db:start     # local Supabase (Postgres, Auth, Studio…) via Docker
+pnpm db:reset     # re-apply migrations and seed
+pnpm db:types     # regenerate database types into packages/core
+pnpm db:test      # pgTAP tests (row level security)
+pnpm dev          # start the web app on http://localhost:3000
+pnpm lint
+pnpm typecheck
+pnpm test         # unit tests in every package
+pnpm build
+
+# end-to-end tests (after `pnpm build`)
+pnpm --filter @staticdesk/web test:e2e
 ```
 
-## Submission API
+## Contributing
 
-Send a JSON `POST` request to `/api/submit/:formId`:
+See [CONTRIBUTING.md](CONTRIBUTING.md). Security issues: see [SECURITY.md](SECURITY.md).
 
-```json
-{
-  "name": "Ada Lovelace",
-  "email": "ada@example.com",
-  "message": "Hello from FormDesk"
-}
-```
+## License
+
+[AGPL-3.0](LICENSE)
