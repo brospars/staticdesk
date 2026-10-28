@@ -36,12 +36,11 @@ const styles = {
   note: 'bg-warning/10 border-warning/30 border-dashed',
 } as const
 
-const supabase = useSupabaseClient()
 const toast = useToast()
 
 /** Opens a short-lived signed URL: files are private, members read them through RLS. */
 async function download(file: { file_name: string, storage_path: string }) {
-  const { data, error } = await supabase.storage
+  const { data, error } = await useSupabaseClient().storage
     .from(ATTACHMENTS_BUCKET)
     .createSignedUrl(file.storage_path, 60, { download: file.file_name })
   if (error) {
