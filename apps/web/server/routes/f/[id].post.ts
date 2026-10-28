@@ -2,11 +2,12 @@ import { z } from 'zod'
 import { contactSubmissionSchema, isOriginAllowed } from '@staticdesk/core'
 
 const paramsSchema = z.object({ id: z.guid() })
-const BUILT_IN_LABELS: Record<string, string> = { name: 'Name', email: 'Email', message: 'Message' }
+const BUILT_IN_LABELS: Record<string, string> = { name: 'Name', email: 'Email', message: 'Message', attachments: 'Attachments' }
 
 /**
  * Plain HTML form endpoint: <form action="https://staticdesk.app/f/<widget id>" method="POST">.
  * Works without JavaScript: answers with a redirect or a small HTML page.
+ * Forms that accept attachments post multipart/form-data with <input type="file" name="attachments">.
  * Clients that ask for JSON (Accept: application/json) get JSON responses.
  */
 export default defineEventHandler(async (event) => {
@@ -21,7 +22,7 @@ export default defineEventHandler(async (event) => {
   }
   setResponseHeaders(event, { 'Access-Control-Allow-Origin': origin, 'Vary': 'Origin' })
 
-  const values = await readFormFields(event)
+  const { values, files } = await readFormSubmission(event)
   const referer = allowedSiteUrl(getRequestHeader(event, 'referer'), site)
   const locale = formPageLocale(site.settings.locale, getRequestHeader(event, 'accept-language'))
 
@@ -53,6 +54,7 @@ export default defineEventHandler(async (event) => {
     result = await submitContactMessage(event, site, {
       ...parsed.data,
       fields,
+      files,
       widgetId: params.data.id,
       pageId: referer ? new URL(referer).pathname : '/',
       pageUrl: referer ?? undefined,

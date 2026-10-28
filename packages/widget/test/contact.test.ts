@@ -10,6 +10,7 @@ const site: PublicSiteConfig = {
   locale: null,
   theme: { primaryColor: '#e11d48', mode: 'auto' },
   turnstileSiteKey: null,
+  attachments: { maxFiles: 2, maxBytes: 1024, accept: 'image/png,.png,application/pdf,.pdf' },
   widgets: [{
     id: 'w-contact',
     kind: 'contact',
@@ -21,6 +22,7 @@ const api = {
   config: vi.fn<Api['config']>(),
   track: vi.fn<Api['track']>(),
   submitContact: vi.fn<Api['submitContact']>(),
+  uploadAttachment: vi.fn<Api['uploadAttachment']>(),
 }
 
 beforeAll(() => {
@@ -175,6 +177,64 @@ describe('<staticdesk-contact>', () => {
     fill(root, { email: 'ada@example.com', message: 'Hello' })
     root.querySelector('form')!.requestSubmit()
     await vi.waitFor(() => expect(root.querySelector('[role="alert"]')!.textContent).toBe('Write to hello@acme.dev instead.'))
+  })
+
+  describe('attachments', () => {
+    const withAttachments = { ...site, widgets: [{ ...site.widgets[0]!, config: { ...site.widgets[0]!.config, attachments: true } }] }
+    const attach = (root: ShadowRoot, files: File[]) =>
+      Object.defineProperty(root.querySelector('input[type="file"]')!, 'files', { value: files, configurable: true })
+
+    it('only shows the file input when the form accepts attachments', async () => {
+      const { root } = await mount()
+      expect(root.querySelector('input[type="file"]')).toBeNull()
+    })
+
+    it('uploads the files, then submits their ids', async () => {
+      api.config.mockResolvedValue(withAttachments)
+      api.uploadAttachment.mockResolvedValueOnce('a-1').mockResolvedValueOnce('a-2')
+      const { root } = await mount()
+      expect(root.querySelector('input[type="file"]')!.getAttribute('accept')).toBe('image/png,.png,application/pdf,.pdf')
+      fill(root, { email: 'ada@example.com', message: 'See attached' })
+      attach(root, [new File(['png'], 'shot.png', { type: 'image/png' }), new File(['pdf'], 'doc.pdf', { type: 'application/pdf' })])
+      root.querySelector('form')!.requestSubmit()
+
+      await vi.waitFor(() => expect(api.submitContact).toHaveBeenCalled())
+      expect(api.uploadAttachment.mock.calls.map(([file, widgetId]) => [file.name, widgetId])).toEqual([['shot.png', 'w-contact'], ['doc.pdf', 'w-contact']])
+      expect(api.submitContact.mock.calls[0]![0].attachments).toEqual(['a-1', 'a-2'])
+    })
+
+    it('rejects too many, too large or unaccepted files before uploading', async () => {
+      api.config.mockResolvedValue(withAttachments)
+      const { root } = await mount()
+      fill(root, { email: 'ada@example.com', message: 'Hello' })
+      const status = root.querySelector('[role="alert"]')!
+      const png = (name: string, size = 3) => new File(['x'.repeat(size)], name, { type: 'image/png' })
+
+      attach(root, [png('a.png'), png('b.png'), png('c.png')])
+      root.querySelector('form')!.requestSubmit()
+      await vi.waitFor(() => expect(status.textContent).toBe('Attach at most 2 files.'))
+
+      attach(root, [png('big.png', 2048)])
+      root.querySelector('form')!.requestSubmit()
+      await vi.waitFor(() => expect(status.textContent).toBe('big.png is too large.'))
+
+      attach(root, [new File(['<svg/>'], 'logo.svg', { type: 'image/svg+xml' })])
+      root.querySelector('form')!.requestSubmit()
+      await vi.waitFor(() => expect(status.textContent).toBe('logo.svg: this file type is not accepted.'))
+      expect(api.uploadAttachment).not.toHaveBeenCalled()
+      expect(api.submitContact).not.toHaveBeenCalled()
+    })
+
+    it('names the file that could not be uploaded', async () => {
+      api.config.mockResolvedValue(withAttachments)
+      api.uploadAttachment.mockRejectedValue(new ApiError(400, 'Invalid file'))
+      const { root } = await mount({ locale: 'fr' })
+      fill(root, { email: 'ada@example.com', message: 'Hello' })
+      attach(root, [new File(['png'], 'shot.png', { type: 'image/png' })])
+      root.querySelector('form')!.requestSubmit()
+      await vi.waitFor(() => expect(root.querySelector('[role="alert"]')!.textContent).toBe('Impossible d\'envoyer shot.png. Veuillez réessayer.'))
+      expect(api.submitContact).not.toHaveBeenCalled()
+    })
   })
 
   it('renders nothing when the site has no contact widget', async () => {

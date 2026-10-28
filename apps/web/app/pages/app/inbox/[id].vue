@@ -32,7 +32,7 @@ const { data: messages, refresh: refreshMessages } = await useAsyncData(
   async () => {
     const { data, error } = await supabase
       .from('messages')
-      .select('id, direction, author_id, body, metadata, created_at')
+      .select('id, direction, author_id, body, metadata, created_at, attachments(id, file_name, size_bytes, storage_path)')
       .eq('thread_id', threadId.value)
       .order('created_at')
     if (error) throw error

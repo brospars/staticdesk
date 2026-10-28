@@ -30,6 +30,7 @@ export default defineEventHandler(async (event): Promise<DeliveryResult> => {
     contact: { email: 'ada@example.com', name: 'Ada Lovelace' },
     message: 'This is a test message from StaticDesk.',
     fields: [{ id: 'company', label: 'Company', value: 'Analytical Engines Ltd' }],
+    attachments: [],
     page: { id: '/', url: null },
   }
   return sendWebhook(event, webhook, payload)

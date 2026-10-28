@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Json } from '@staticdesk/core'
+import { ATTACHMENTS_BUCKET, formatFileSize, type Json } from '@staticdesk/core'
 
 const props = defineProps<{
   message: {
@@ -7,6 +7,8 @@ const props = defineProps<{
     body: string
     created_at: string
     metadata: Json
+    /** Files stored with the message (contact form attachments). */
+    attachments?: { id: string, file_name: string, size_bytes: number, storage_path: string }[]
   }
   /** Contact for inbound messages, team member otherwise. */
   author: string
@@ -33,6 +35,21 @@ const styles = {
   outbound: 'bg-primary/5 border-primary/25 ms-8',
   note: 'bg-warning/10 border-warning/30 border-dashed',
 } as const
+
+const supabase = useSupabaseClient()
+const toast = useToast()
+
+/** Opens a short-lived signed URL: files are private, members read them through RLS. */
+async function download(file: { file_name: string, storage_path: string }) {
+  const { data, error } = await supabase.storage
+    .from(ATTACHMENTS_BUCKET)
+    .createSignedUrl(file.storage_path, 60, { download: file.file_name })
+  if (error) {
+    toast.add({ title: 'Could not download the file', description: error.message, color: 'error' })
+    return
+  }
+  window.location.assign(data.signedUrl)
+}
 
 const time = computed(() => new Date(props.message.created_at).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }))
 const otherSender = computed(() => metadata.value.from && props.contactEmail && metadata.value.from !== props.contactEmail)
@@ -118,6 +135,29 @@ const otherSender = computed(() => metadata.value.from && props.contactEmail && 
         </dd>
       </template>
     </dl>
+
+    <ul
+      v-if="message.attachments?.length"
+      class="mt-3 flex flex-wrap gap-2"
+      aria-label="Attachments"
+    >
+      <li
+        v-for="file in message.attachments"
+        :key="file.id"
+      >
+        <UButton
+          icon="i-lucide-paperclip"
+          color="neutral"
+          variant="outline"
+          size="sm"
+          :aria-label="`Download ${file.file_name}`"
+          @click="download(file)"
+        >
+          {{ file.file_name }}
+          <span class="text-muted">{{ formatFileSize(file.size_bytes) }}</span>
+        </UButton>
+      </li>
+    </ul>
 
     <p
       v-if="metadata.attachments?.length"

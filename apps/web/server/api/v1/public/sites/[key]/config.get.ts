@@ -1,4 +1,4 @@
-import { parseContactWidgetConfig, type PublicSiteConfig } from '@staticdesk/core'
+import { parseContactWidgetConfig, publicAttachmentLimits, type PublicSiteConfig } from '@staticdesk/core'
 
 // Notification settings stay private.
 function publicContactConfig(value: unknown) {
@@ -19,6 +19,7 @@ export default defineEventHandler((event): PublicSiteConfig => {
     locale: site.settings.locale,
     theme: site.settings.theme,
     turnstileSiteKey: site.settings.turnstile && turnstileReady ? String(config.public.turnstileSiteKey) : null,
+    attachments: publicAttachmentLimits,
     widgets: site.widgets.map(widget => ({
       id: widget.id,
       kind: widget.kind,

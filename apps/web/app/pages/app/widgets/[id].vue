@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from '@nuxt/ui'
 import {
+  ATTACHMENT_LIMITS,
   buildEmbedSnippet,
   buildHtmlFormSnippet,
   contactWidgetFormSchema,
@@ -59,6 +60,7 @@ const state = reactive({
   redirectUrl: '',
   position: 'bottom-right' as ContactWidgetFormInput['position'],
   nameField: 'optional' as ContactWidgetFormInput['nameField'],
+  attachments: false,
   notifyTeam: true,
 })
 
@@ -75,6 +77,7 @@ watch(widget, (value) => {
     redirectUrl: config.redirectUrl ?? '',
     position: config.position,
     nameField: config.nameField,
+    attachments: config.attachments,
     notifyTeam: config.notifyTeam,
   })
   fields.value = config.fields.map(field => ({
@@ -159,6 +162,7 @@ const htmlSnippet = computed(() => {
   return buildHtmlFormSnippet({
     actionUrl: `${appUrl.value}/f/${widgetId}`,
     nameField: state.nameField,
+    attachments: state.attachments,
     fields: config.success ? config.data.fields : parseContactWidgetConfig(widget.value?.config).fields,
   })
 })
@@ -415,6 +419,21 @@ const htmlSnippet = computed(() => {
             </UButton>
           </UFormField>
         </div>
+      </UPageCard>
+
+      <UPageCard
+        title="Attachments"
+        :description="`Visitors can attach up to ${ATTACHMENT_LIMITS.maxFiles} files of ${ATTACHMENT_LIMITS.maxBytes / 1024 / 1024} MB: images, PDF, text, CSV, ZIP and office documents.`"
+      >
+        <UFormField
+          name="attachments"
+          description="Files are stored privately and downloaded from the inbox. Unsent uploads are deleted after a day."
+        >
+          <USwitch
+            v-model="state.attachments"
+            label="Accept attachments"
+          />
+        </UFormField>
       </UPageCard>
 
       <UPageCard

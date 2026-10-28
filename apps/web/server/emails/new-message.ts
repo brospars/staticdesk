@@ -1,4 +1,4 @@
-import type { ContactFieldEntry } from '@staticdesk/core'
+import { formatFileSize, type AttachmentSummary, type ContactFieldEntry } from '@staticdesk/core'
 
 import type { MailMessage } from '../utils/mailer'
 import { escapeHtml } from './escape'
@@ -9,6 +9,7 @@ export interface NewMessageEmailOptions {
   contact: { email: string, name: string | null }
   message: string
   fields: ContactFieldEntry[]
+  attachments: AttachmentSummary[]
   pageUrl: string | null
   dashboardUrl: string
 }
@@ -21,6 +22,10 @@ export function newMessageEmail(options: NewMessageEmailOptions): MailMessage {
     { label: 'From', value: from },
     ...options.fields.map(({ label, value }) => ({ label, value })),
     ...(options.pageUrl ? [{ label: 'Page', value: options.pageUrl }] : []),
+    // Files stay private: they are downloaded from the dashboard.
+    ...(options.attachments.length
+      ? [{ label: 'Attachments', value: options.attachments.map(file => `${file.name} (${formatFileSize(file.size)})`).join(', ') }]
+      : []),
   ]
 
   return {
