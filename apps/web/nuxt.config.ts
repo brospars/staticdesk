@@ -14,7 +14,16 @@ export default defineNuxtConfig({
       driver: 'log',
       from: 'StaticDesk <notifications@staticdesk.app>',
       resendApiKey: '',
+      // Domain receiving visitor replies through Resend inbound, e.g. in.staticdesk.app.
+      // Replies are sent with a reply+<thread>@<domain> Reply-To address.
+      inboundDomain: '',
+      // Signs reply addresses so nobody can post into a thread by guessing its id.
+      replySecret: '',
+      // Signing secret of the Resend webhook (inbound emails, bounces, complaints).
+      resendWebhookSecret: '',
     },
+    // Bearer token expected by scheduled jobs (/api/cron/*). Vercel sends CRON_SECRET.
+    cronSecret: '',
     // Secret used to derive daily visitor fingerprints (hashed IP + user agent).
     fingerprintSecret: '',
     // Read the client IP from X-Forwarded-For (true behind Vercel or a reverse proxy).
@@ -39,6 +48,12 @@ export default defineNuxtConfig({
   },
   compatibilityDate: '2026-10-27',
   nitro: {
+    // Vercel Cron: daily inbox digest at 07:00 UTC.
+    vercel: {
+      config: {
+        crons: [{ path: '/api/cron/digest', schedule: '0 7 * * *' }],
+      },
+    },
     // Serves /widget.js from the widget package build. Short cache: the URL is not versioned.
     publicAssets: [{ dir: widgetDist, baseURL: '/', maxAge: 300 }],
   },
