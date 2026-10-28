@@ -30,6 +30,12 @@ export default defineNuxtConfig({
       stylistic: true,
     },
   },
+  icon: {
+    // Bundle the icon sets used by the app instead of fetching them at runtime.
+    serverBundle: {
+      collections: ['lucide', 'simple-icons'],
+    },
+  },
   supabase: {
     types: fileURLToPath(new URL('../../packages/core/src/database.types.ts', import.meta.url)),
     redirectOptions: {

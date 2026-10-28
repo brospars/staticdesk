@@ -8,7 +8,7 @@
 
 ## Checklist
 
-- [ ] `pnpm lint`, `pnpm typecheck`, `pnpm test` and `pnpm build` pass
+- [ ] `npm run lint`, `npm run typecheck`, `npm test` and `npm run build` pass
 - [ ] Tests added or updated
 - [ ] Changeset added (if a published package changed)
 - [ ] Docs updated (if behavior changed)

@@ -3,7 +3,12 @@
   "license": "AGPL-3.0-only",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@10.28.0",
+  "packageManager": "npm@10.9.4",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "packages/integrations/*"
+  ],
   "engines": {
     "node": ">=22"
   },
@@ -26,5 +31,8 @@
     "@changesets/cli": "^3.0.3",
     "supabase": "^2.122.0",
     "turbo": "^2.11.10"
+  },
+  "dependencies": {
+    "h3": "^1.15.0"
   }
 }

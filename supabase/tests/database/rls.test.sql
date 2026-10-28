@@ -1,4 +1,4 @@
--- Row level security tests. Run with `pnpm db:test` (supabase test db).
+-- Row level security tests. Run with `npm run db:test` (supabase test db).
 begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;

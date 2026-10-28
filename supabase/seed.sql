@@ -1,4 +1,4 @@
--- Development seed, loaded by `pnpm db:reset`.
+-- Development seed, loaded by `npm run db:reset`.
 -- Sign in at http://localhost:3000 with dev@staticdesk.local / password.
 -- Embed the demo widgets with data-site="pk_demo000000000000000000".
 

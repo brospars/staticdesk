@@ -19,7 +19,7 @@ export default defineConfig({
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
   ],
-  // Runs against the production build: `pnpm build` first.
+  // Runs against the production build: `npm run build` first.
   webServer: {
     command: 'node .output/server/index.mjs',
     port,

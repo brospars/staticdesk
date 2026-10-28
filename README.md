@@ -23,22 +23,22 @@ Nuxt 4 · Nuxt UI 4 · Supabase · Resend · Stripe · Vercel
 
 ## Development
 
-Requirements: Node.js 22+, pnpm 10 (`corepack enable`), Docker (for local Supabase).
+Requirements: Node.js 22+, npm 10, Docker (for local Supabase).
 
 ```bash
-pnpm install
-pnpm db:start     # local Supabase (Postgres, Auth, Studio…) via Docker
-pnpm db:reset     # re-apply migrations and seed
-pnpm db:types     # regenerate database types into packages/core
-pnpm db:test      # pgTAP tests (row level security)
-pnpm dev          # start the web app on http://localhost:3000
-pnpm lint
-pnpm typecheck
-pnpm test         # unit tests in every package
-pnpm build
+npm install
+npm run db:start     # local Supabase (Postgres, Auth, Studio…) via Docker
+npm run db:reset     # re-apply migrations and seed
+npm run db:types     # regenerate database types into packages/core
+npm run db:test      # pgTAP tests (row level security)
+npm run dev          # start the web app on http://localhost:3000
+npm run lint
+npm run typecheck
+npm test             # unit tests in every package
+npm run build
 
-# end-to-end tests (after `pnpm build`)
-pnpm --filter @staticdesk/web test:e2e
+# end-to-end tests (after `npm run build`)
+npm run test:e2e -w @staticdesk/web
 ```
 
 ## Contributing

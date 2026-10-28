@@ -15,17 +15,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm lint
-      - run: pnpm typecheck
-      - run: pnpm test
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
       # Includes the widget size budget check.
-      - run: pnpm build
+      - run: npm run build
       - name: Upload web build
         uses: actions/upload-artifact@v4
         with:
@@ -40,18 +39,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
+          cache: npm
+      - run: npm ci
       - uses: actions/download-artifact@v4
         with:
           name: web-output
           path: apps/web/.output
-      - run: pnpm --filter @staticdesk/web exec playwright install --with-deps chromium
-      - run: pnpm --filter @staticdesk/web test:e2e
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e -w @staticdesk/web
       - name: Upload Playwright report
         if: failure()
         uses: actions/upload-artifact@v4
@@ -65,16 +63,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
+          cache: npm
+      - run: npm ci
       # Starts only Postgres and applies every migration.
-      - run: pnpm exec supabase db start
-      - run: pnpm db:test
+      - run: npx supabase db start
+      - run: npm run db:test
       - name: Check generated database types are up to date
         run: |
-          pnpm db:types
+          npm run db:types
           git diff --exit-code -- packages/core/src/database.types.ts
