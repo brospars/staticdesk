@@ -59,8 +59,14 @@ Nuxt 3 / Nuxt UI 2-3 / Tailwind 3 / Zod 3 examples.
 - Env vars: `apps/web/.env.example` (runtime config keys in `apps/web/nuxt.config.ts`).
 - Migrations: `supabase/migrations`; seed (dev user `dev@staticdesk.local` / `password`,
   site key `pk_demo000000000000000000`): `supabase/seed.sql`.
-- Dashboard pages: `apps/web/app/pages/app/*` (onboarding, sites, settings/members);
-  current workspace via `useWorkspaces()`.
+- Dashboard pages: `apps/web/app/pages/app/*` (onboarding, sites, widgets/[id] for the
+  contact form editor, settings/members); current workspace via `useWorkspaces()`.
+- Contact submissions: `submitContactMessage()` in `apps/web/server/utils/contact/submit.ts`,
+  shared by the widget API and the plain HTML form endpoint (`server/routes/f/[id].post.ts`).
+  It sends the team email and webhooks (`server/utils/webhooks.ts`) after the response
+  with `event.waitUntil()`.
+- Contact form configuration (`widgets.config`): `contactWidgetConfigSchema` in
+  `packages/core/src/schemas/widget-config.ts`; custom fields in `schemas/contact-form.ts`.
 - Email: `useMailer()` in `apps/web/server/utils/mailer.ts` (`log` or `resend` driver);
   templates in `apps/web/server/emails`.
 - Widget elements: `packages/widget/src/elements/*` (extend `StaticDeskElement`).
@@ -77,6 +83,8 @@ Nuxt 3 / Nuxt UI 2-3 / Tailwind 3 / Zod 3 examples.
 - Type generation needs `sslmode=disable` on the local URL (see `npm run db:types`).
 - Playwright: a page on a public origin loading from localhost needs
   `permissions: ['local-network-access']` (see `apps/web/test/e2e/widget.spec.ts`).
+- Server unit tests (`apps/web/test/unit`) run without Nuxt: `#supabase/server` is
+  aliased to a stub, and Nitro auto-imports are only available inside functions.
 - Sandboxed environments may not pull every Supabase Docker image. The Postgres image
   alone (`public.ecr.aws/supabase/postgres`) runs migrations and pgTAP tests: apply
   `supabase/migrations/*.sql` then each file in `supabase/tests/database` with `psql`.

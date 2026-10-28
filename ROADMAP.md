@@ -12,8 +12,9 @@ Legend: 🧑 = manual action (account, configuration, decision) · 💻 = develo
 
 ## Status (2026-10-28)
 
-- Done: phases 2 and 3 (except the comments, reactions and reviews elements, planned in phase 7). **Next: phase 4** (contact form: custom fields, team notifications, plain HTML form mode, webhooks).
-- Not yet verified against a real Supabase stack (Auth, PostgREST): sign-in, onboarding writes, invitations and the public API. They were tested with unit tests, pgTAP on Postgres 17 and a mocked REST server. Run `npm run db:start` and try the flows end to end.
+- Done: phases 2 and 3 (except the comments, reactions and reviews elements, planned in phase 7), and phase 4 except attachments. **Next: phase 5** (shared inbox), then attachments for phase 4.
+- Not yet verified against a real Supabase stack (Auth, PostgREST): sign-in, onboarding writes, invitations, the public API, the plain HTML form endpoint, the widget editor and webhooks. They were tested with unit tests, pgTAP on Postgres 16 and 17 and a mocked REST server. Run `npm run db:start` and try the flows end to end.
+- `packages/core/src/database.types.ts` was edited by hand for the phase 4 migration (the Supabase CLI could not run here): run `npm run db:types` and commit any diff.
 - GitHub Actions (CI, release) have not run yet: check the first run, in particular the database job and the generated types check.
 - Open decision: license (AGPL-3.0 applied everywhere, MIT considered for the widget and plugins).
 
@@ -169,13 +170,15 @@ Legend: 🧑 = manual action (account, configuration, decision) · 💻 = develo
 
 ## Phase 4: contact form
 
-- [ ] 💻 Default fields (name, email, message) plus custom fields (text, select, checkbox)
-- [ ] 💻 Client and server validation (shared Zod schema)
+- [x] 💻 Default fields (name, email, message) plus custom fields (text, long text, select, checkbox); the name can be optional, required or hidden
+- [x] 💻 Client and server validation (field definitions shared through `@staticdesk/core`: HTML constraints in the widget, Zod on the server)
 - [ ] 💻 Attachments (Supabase Storage, size limit, optional antivirus)
-- [ ] 💻 Customizable success and error messages, optional redirect
-- [ ] 💻 "Plain HTML form" mode: `<form action="https://staticdesk.app/f/xxx" method="POST">`, works without JS
-- [ ] 💻 Email notification to the team for each new message (Resend)
-- [ ] 💻 Outgoing webhooks (Slack, Discord, custom URL)
+- [x] 💻 Customizable success and error messages, optional redirect
+- [x] 💻 "Plain HTML form" mode: `<form action="https://staticdesk.app/f/<widget id>" method="POST">`, works without JS (honeypot, origin check, `_redirect` limited to the site's origins, Turnstile token supported)
+- [x] 💻 Email notification to the team for each new message (Resend, reply-to set to the visitor), can be turned off per form
+- [x] 💻 Outgoing webhooks (Slack, Discord, custom URL with HMAC signature), with a test button and the last delivery status
+  - [ ] 💻 Retries with backoff and a delivery log (currently one attempt, outcome stored on the webhook)
+  - [ ] 💻 Encrypt and rotate webhook secrets (phase 13)
 
 ---
 

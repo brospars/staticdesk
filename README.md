@@ -18,6 +18,35 @@ Open source and free to self-host, or use the hosted SaaS.
 
 See [packages/widget](packages/widget/README.md) for attributes and styling.
 
+Without JavaScript, post a plain HTML form to the contact form's endpoint (the
+dashboard generates the markup, including custom fields):
+
+```html
+<form action="https://staticdesk.app/f/<contact form id>" method="POST">
+  <input name="email" type="email" required>
+  <textarea name="message" required></textarea>
+  <input name="_honeypot" style="display:none" tabindex="-1" autocomplete="off">
+  <button type="submit">Send</button>
+</form>
+```
+
+Optional inputs: `_redirect` (a page on one of the site's allowed origins to
+open after sending). If the site requires Cloudflare Turnstile, add the Turnstile
+widget inside the form: its `cf-turnstile-response` input is verified. Send
+`Accept: application/json` to get JSON responses.
+
+### Webhooks
+
+Each new contact message can be sent to Slack, Discord or a custom HTTPS URL
+(site page in the dashboard). Custom endpoints receive a `contact.submitted` JSON
+body with these headers:
+
+- `StaticDesk-Event`: `contact.submitted`
+- `StaticDesk-Delivery`: unique delivery id (also the body's `id`)
+- `StaticDesk-Signature`: `t=<unix seconds>,v1=<signature>`, where the signature
+  is the hex HMAC-SHA256 of `<t>.<raw body>` with the webhook's signing secret.
+  Compare it in constant time and reject old timestamps.
+
 ## Stack
 
 Nuxt 4 · Nuxt UI 4 · Supabase · Resend · Stripe · Vercel

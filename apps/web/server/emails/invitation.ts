@@ -1,12 +1,5 @@
 import type { MailMessage } from '../utils/mailer'
-
-function escapeHtml(value: string) {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-}
+import { escapeHtml } from './escape'
 
 export function invitationEmail(options: {
   to: string
