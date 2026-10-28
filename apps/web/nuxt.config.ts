@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url'
 
 const databaseTypes = fileURLToPath(new URL('../../packages/core/src/database.types.ts', import.meta.url))
+const widgetDist = fileURLToPath(new URL('../../packages/widget/dist', import.meta.url))
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -37,6 +38,10 @@ export default defineNuxtConfig({
     '#supabase/database': databaseTypes,
   },
   compatibilityDate: '2026-10-27',
+  nitro: {
+    // Serves /widget.js from the widget package build. Short cache: the URL is not versioned.
+    publicAssets: [{ dir: widgetDist, baseURL: '/', maxAge: 300 }],
+  },
   typescript: {
     strict: true,
   },

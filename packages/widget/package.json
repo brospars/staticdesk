@@ -11,7 +11,8 @@
     "build": "vite build && node scripts/check-size.mjs",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "dev": "vite build --watch"
   },
   "devDependencies": {
     "@nuxt/eslint-config": "^1.17.0",
