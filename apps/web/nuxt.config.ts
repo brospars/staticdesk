@@ -1,5 +1,7 @@
 import { fileURLToPath } from 'node:url'
 
+import { CRON_JOBS } from './shared/cron-jobs'
+
 const databaseTypes = fileURLToPath(new URL('../../packages/core/src/database.types.ts', import.meta.url))
 const widgetDist = fileURLToPath(new URL('../../packages/widget/dist', import.meta.url))
 
@@ -9,11 +11,18 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   css: ['~/assets/css/main.css'],
   runtimeConfig: {
-    // Email: 'resend' sends through Resend; 'log' prints emails to the console (development).
+    // Email: 'resend' sends through Resend, 'smtp' through any SMTP server;
+    // 'log' prints emails to the console (development).
     mail: {
       driver: 'log',
       from: 'StaticDesk <notifications@staticdesk.app>',
       resendApiKey: '',
+      smtpHost: '',
+      smtpPort: 587,
+      // true for TLS from the start (port 465); otherwise STARTTLS when offered.
+      smtpSecure: false,
+      smtpUser: '',
+      smtpPass: '',
       // Domain receiving visitor replies through Resend inbound, e.g. in.staticdesk.app.
       // Replies are sent with a reply+<thread>@<domain> Reply-To address.
       inboundDomain: '',
@@ -24,6 +33,10 @@ export default defineNuxtConfig({
     },
     // Bearer token expected by scheduled jobs (/api/cron/*). Vercel sends CRON_SECRET.
     cronSecret: '',
+    // 'internal' runs the scheduled jobs in this process (Docker, a single Node server).
+    scheduler: '',
+    // Address the server uses to reach Supabase when the public URL does not work from it.
+    supabaseInternalUrl: '',
     // Secret used to derive daily visitor fingerprints (hashed IP + user agent).
     fingerprintSecret: '',
     // Read the client IP from X-Forwarded-For (true behind Vercel or a reverse proxy).
@@ -48,15 +61,10 @@ export default defineNuxtConfig({
   },
   compatibilityDate: '2026-10-27',
   nitro: {
-    // Vercel Cron: daily inbox digest at 07:00 UTC and cleanup at 03:00 UTC; delayed
-    // auto-replies and follow-up reminders every 5 minutes (needs a plan allowing frequent crons).
+    // Vercel Cron (see shared/cron-jobs.ts).
     vercel: {
       config: {
-        crons: [
-          { path: '/api/cron/digest', schedule: '0 7 * * *' },
-          { path: '/api/cron/cleanup', schedule: '0 3 * * *' },
-          { path: '/api/cron/automation', schedule: '*/5 * * * *' },
-        ],
+        crons: CRON_JOBS.map(({ path, schedule }) => ({ path, schedule })),
       },
     },
     // Serves /widget.js from the widget package build. Short cache: the URL is not versioned.
