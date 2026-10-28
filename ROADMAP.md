@@ -12,9 +12,10 @@ Legend: 🧑 = manual action (account, configuration, decision) · 💻 = develo
 
 ## Status (2026-10-28)
 
-- Done: phases 2 and 3 (except the comments, reactions and reviews elements, planned in phase 7), phase 4 except attachments, phase 5 (shared inbox) and phase 6 (auto-replies, except AI suggestions). **Next:** attachments for phase 4, then the rest of the MVP (phase 10): the Docusaurus plugin (phase 9) and `docker compose` self-hosting (phase 12).
-- Not yet verified against a real Supabase stack (Auth, PostgREST, Realtime) or real Resend inbound emails: sign-in, onboarding writes, invitations, the public API, the plain HTML form endpoint, the widget editor, webhooks, the whole inbox (list, replies, inbound webhook, Realtime presence, sending domains) and auto-replies (rules page, sending, `/api/cron/automation`). They were tested with unit tests, pgTAP on Postgres 16 and 17 and a mocked REST server. Run `npm run db:start` and try the flows end to end.
-- `packages/core/src/database.types.ts` was edited by hand for the phase 4 and 5 migrations (the Supabase CLI could not run here; the phase 6 changes were generated against a local Postgres): run `npm run db:types` and commit any diff.
+- Done: phases 2 to 6 (except the comments, reactions and reviews elements, planned in phase 7, and AI suggestions), and the development part of the MVP (phase 10): contact form attachments, the Docusaurus plugin and self-hosting with Docker Compose. **Next:** the manual MVP steps (accounts, dogfooding, beta testers), then v0.2: comments and reactions (phase 7).
+- Verified end to end on the Docker Compose stack (Supabase Auth, PostgREST, Realtime and Storage, SMTP through Mailpit): magic-link sign-in, onboarding, invitations, the widget editor, the widget and plain HTML form submissions with attachments, team notifications, the inbox (list, Realtime updates, attachment download, reply by email), the auto-reply acknowledgement and the `/api/cron/*` jobs. The Docusaurus plugin was checked in a real Docusaurus 3.10 build.
+- Still untested against real services: Resend (inbound replies, bounces, sending domains), GitHub and Google sign-in, Turnstile, webhooks to Slack and Discord, Vercel deployment and crons.
+- `packages/core/src/database.types.ts` was edited by hand for the phase 4, 5 and attachments migrations (the Supabase CLI type generator needs Docker images this environment could not pull): run `npm run db:types` and commit any diff.
 - GitHub Actions (CI, release) have not run yet: check the first run, in particular the database job and the generated types check.
 - Open decision: license (AGPL-3.0 applied everywhere, MIT considered for the widget and plugins).
 
@@ -172,7 +173,8 @@ Legend: 🧑 = manual action (account, configuration, decision) · 💻 = develo
 
 - [x] 💻 Default fields (name, email, message) plus custom fields (text, long text, select, checkbox); the name can be optional, required or hidden
 - [x] 💻 Client and server validation (field definitions shared through `@staticdesk/core`: HTML constraints in the widget, Zod on the server)
-- [ ] 💻 Attachments (Supabase Storage, size limit, optional antivirus)
+- [x] 💻 Attachments (Supabase Storage, size limit): up to 3 files of 5 MB (images, PDF, text, CSV, ZIP, office documents), uploaded straight to a private bucket through signed URLs, linked by `submit_contact()`, downloadable from the inbox; unsent uploads deleted daily (`/api/cron/cleanup`)
+  - [ ] 💻 Optional antivirus scan (ClamAV) before files are shown
 - [x] 💻 Customizable success and error messages, optional redirect
 - [x] 💻 "Plain HTML form" mode: `<form action="https://staticdesk.app/f/<widget id>" method="POST">`, works without JS (honeypot, origin check, `_redirect` limited to the site's origins, Turnstile token supported)
 - [x] 💻 Email notification to the team for each new message (Resend, reply-to set to the visitor), can be turned off per form
@@ -253,8 +255,8 @@ Legend: 🧑 = manual action (account, configuration, decision) · 💻 = develo
 
 ## Phase 9: framework integrations
 
-- [ ] 💻 Universal HTML snippet (copy-paste), enough for GitHub Pages, GitLab Pages, Netlify and Cloudflare Pages
-- [ ] 💻 **Docusaurus**: `@staticdesk/docusaurus-plugin` (swizzle `DocItem/Footer` and floating button)
+- [x] 💻 Universal HTML snippet (copy-paste), enough for GitHub Pages, GitLab Pages, Netlify and Cloudflare Pages
+- [x] 💻 **Docusaurus**: `@staticdesk/docusaurus-plugin` (floating button, color mode sync, `@theme/StaticDeskContact` for MDX; the docs footer can be wrapped with it, "helpful?" comes with phase 7 reactions)
 - [ ] 💻 **MkDocs / Material for MkDocs**: `mkdocs-staticdesk` PyPI package (template override)
 - [ ] 💻 **VitePress**: component or theme plugin
 - [ ] 💻 **Astro / Starlight**: `@staticdesk/astro` integration
@@ -273,12 +275,12 @@ Legend: 🧑 = manual action (account, configuration, decision) · 💻 = develo
 
 > Goal: ship a first complete end-to-end use case quickly.
 
-- [ ] 💻 Auth, workspace and sites (phase 2)
-- [ ] 💻 Contact widget and floating button (phases 3 and 4)
+- [x] 💻 Auth, workspace and sites (phase 2)
+- [x] 💻 Contact widget and floating button (phases 3 and 4)
 - [x] 💻 Minimal shared inbox: list, read, reply by email, status (phase 5)
 - [x] 💻 Automatic acknowledgement (phase 6)
-- [ ] 💻 HTML snippet and Docusaurus plugin (phase 9)
-- [ ] 💻 Self-hosting with `docker compose` (phase 12)
+- [x] 💻 HTML snippet and Docusaurus plugin (phase 9)
+- [x] 💻 Self-hosting with `docker compose` (phase 12)
 - [ ] 🧑 Dogfooding: install StaticDesk on our own docs and landing page
 - [ ] 🧑 Recruit 10 to 20 beta testers (open source maintainers, technical writers)
 
@@ -310,12 +312,15 @@ Legend: 🧑 = manual action (account, configuration, decision) · 💻 = develo
 
 ## Phase 12: self-hosting
 
-- [ ] 💻 `Dockerfile` (Nuxt with the `node-server` preset) and `docker-compose.yml` (app + self-hosted Supabase, or Postgres)
-- [ ] 💻 Email adapter: Resend or generic SMTP
-- [ ] 💻 Migrations applied on startup, admin account created on first launch
-- [ ] 💻 Images published to GHCR on every release (multi-arch amd64/arm64)
+- [x] 💻 `Dockerfile` (Nuxt with the `node-server` preset) and `docker/docker-compose.yml` (app + Supabase Postgres, Auth, PostgREST, Realtime and Storage behind Caddy, one origin, automatic HTTPS)
+- [x] 💻 Email adapter: Resend or generic SMTP (`NUXT_MAIL_DRIVER=smtp`)
+- [x] 💻 Migrations applied on startup (`migrate` service); the first account signs up with a magic link
+  - [ ] 💻 Optional admin account created from environment variables, and an app-level "invitation only" mode (`DISABLE_SIGNUP` also blocks invited members today)
+- [x] 💻 Built-in scheduler for the `/api/cron/*` jobs (`NUXT_SCHEDULER=internal`)
+- [x] 💻 Images published to GHCR from `main` and version tags (multi-arch amd64/arm64, `.github/workflows/docker.yml`)
+  - [ ] 🧑 Check the first workflow run, then make the GHCR package public
 - [ ] 💻 "Deploy" buttons: Vercel (with the Supabase integration), Railway, Render, Coolify
-- [ ] 💻 Documentation: requirements, variables, backups, upgrades, reverse proxy
+- [x] 💻 Documentation: requirements, variables, backups, upgrades, reverse proxy (`docs/self-hosting.md`)
 - [ ] 💻 Anonymous telemetry, **opt-in** only (number of instances), can be disabled
 
 ---

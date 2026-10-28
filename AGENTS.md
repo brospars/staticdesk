@@ -20,7 +20,8 @@ Nuxt 3 / Nuxt UI 2-3 / Tailwind 3 / Zod 3 examples.
 - `apps/web`: Nuxt app (landing, dashboard, API in `server/`)
 - `packages/core`: Zod schemas and types shared by the API and the widget
 - `packages/widget`: browser SDK, built as an IIFE `widget.js` (15 kB gzip budget)
-- `packages/integrations/*`: framework plugins (to come)
+- `packages/integrations/docusaurus`: `@staticdesk/docusaurus-plugin` (no runtime dependencies, compiled with tsc to `lib/`)
+- `docker/`: self-hosting with Docker Compose (`Dockerfile` at the root); guide in `docs/self-hosting.md`
 
 ## Commands (from the repo root)
 
@@ -85,10 +86,18 @@ Nuxt 3 / Nuxt UI 2-3 / Tailwind 3 / Zod 3 examples.
   are inserted as text through its `variable` option, never parsed).
 - Contact form configuration (`widgets.config`): `contactWidgetConfigSchema` in
   `packages/core/src/schemas/widget-config.ts`; custom fields in `schemas/contact-form.ts`.
-- Email: `useMailer()` in `apps/web/server/utils/mailer.ts` (`log` or `resend` driver;
+- Email: `useMailer()` in `apps/web/server/utils/mailer.ts` (`log`, `resend` or `smtp` driver;
   `useResend()` for other Resend APIs); templates in `apps/web/server/emails`.
-- Scheduled jobs: `server/api/cron/*`, declared as Vercel Crons in `nuxt.config.ts`
-  (`nitro.vercel.config.crons`) and protected by a bearer `CRON_SECRET`.
+- Scheduled jobs: `server/api/cron/*`, listed once in `apps/web/shared/cron-jobs.ts` (Vercel Crons in
+  `nuxt.config.ts`, and `server/plugins/scheduler.ts` with `NUXT_SCHEDULER=internal`), protected by a bearer `CRON_SECRET`.
+- Attachments: `attachments` table and private `attachments` bucket. The widget asks
+  `POST /api/v1/public/sites/:key/attachments` for a signed upload URL, PUTs the file to storage, then sends the ids
+  with the submission; plain HTML forms post files (`server/utils/contact/attachments.ts`). `submit_contact()` links
+  them (rejects files not uploaded, stale or from another site). Members download through signed URLs (storage RLS).
+  Limits and types: `packages/core/src/schemas/attachments.ts` (keep the bucket's `allowed_mime_types` in sync).
+- Self-hosting: `docker/docker-compose.yml` (Caddy serves the app and the Supabase APIs on one origin, `migrate`
+  applies `supabase/migrations` as `postgres`). The app reaches Supabase through `NUXT_SUPABASE_INTERNAL_URL`
+  (`server/plugins/supabase-internal-url.ts` rewrites server-side fetches). Secrets: `docker/generate-env.mjs`.
 - Widget elements: `packages/widget/src/elements/*` (extend `StaticDeskElement`).
 - Release: Changesets + `.github/workflows/release.yml` (needs the `NPM_TOKEN` secret).
 
@@ -107,6 +116,10 @@ Nuxt 3 / Nuxt UI 2-3 / Tailwind 3 / Zod 3 examples.
   aliased to a stub, and Nitro auto-imports are only available inside functions.
 - PostgREST upserts update every column of the payload: with column-level update grants,
   update or insert explicitly instead (see `pages/app/settings/notifications.vue`).
+- Docusaurus `injectHtmlTags` needs `customElement: true` for tags like `<staticdesk-contact>`.
+- Supabase Auth sends at most one magic link per minute to an address: wait before retrying in E2E scripts.
+- Self-hosted Supabase services do not answer CORS preflights: the gateway (Caddy) does, like Supabase's own.
+- Docker Hub may rate-limit pulls (429): `mirror.gcr.io/<image>` mirrors it (then `docker tag` to the usual name).
 - Sandboxed environments may not pull every Supabase Docker image. The Postgres image
   alone (`public.ecr.aws/supabase/postgres`) runs migrations and pgTAP tests: apply
   `supabase/migrations/*.sql` then each file in `supabase/tests/database` with `psql`.
