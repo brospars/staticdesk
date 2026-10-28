@@ -114,6 +114,8 @@ describe('<staticdesk-contact>', () => {
   })
 
   it('submits the message with page and anti-spam fields', async () => {
+    // Servers before attachments do not send their limits.
+    api.config.mockResolvedValue({ ...site, attachments: undefined as never })
     const { root } = await mount()
     fill(root, { name: ' Ada ', email: 'ada@example.com', message: 'Hello!' })
     root.querySelector('form')!.requestSubmit()

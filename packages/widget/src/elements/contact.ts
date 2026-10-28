@@ -199,6 +199,7 @@ export class StaticDeskContact extends StaticDeskElement {
 
   /** The selected files, or a message explaining why they cannot be sent. */
   private checkFiles(files: File[]): string | null {
+    if (!files.length) return null
     const limits = this.site!.attachments
     const types = limits.accept.split(',')
     if (files.length > limits.maxFiles) return this.t('error.tooManyFiles', { count: limits.maxFiles })
