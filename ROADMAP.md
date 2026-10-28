@@ -15,7 +15,7 @@ Legend: 🧑 = manual action (account, configuration, decision) · 💻 = develo
 - Done: phases 2 to 6 (except the comments, reactions and reviews elements, planned in phase 7, and AI suggestions), and the development part of the MVP (phase 10): contact form attachments, the Docusaurus plugin and self-hosting with Docker Compose. **Next:** the manual MVP steps (accounts, dogfooding, beta testers), then v0.2: comments and reactions (phase 7).
 - Verified end to end on the Docker Compose stack (Supabase Auth, PostgREST, Realtime and Storage, SMTP through Mailpit): magic-link sign-in, onboarding, invitations, the widget editor, the widget and plain HTML form submissions with attachments, team notifications, the inbox (list, Realtime updates, attachment download, reply by email), the auto-reply acknowledgement and the `/api/cron/*` jobs. The Docusaurus plugin was checked in a real Docusaurus 3.10 build.
 - Still untested against real services: Resend (inbound replies, bounces, sending domains), GitHub and Google sign-in, Turnstile, webhooks to Slack and Discord, Vercel deployment and crons.
-- `packages/core/src/database.types.ts` was edited by hand for the phase 4, 5 and attachments migrations (the Supabase CLI type generator needs Docker images this environment could not pull): run `npm run db:types` and commit any diff.
+- `packages/core/src/database.types.ts` is generated (`npm run db:types`, checked by CI): the pgTAP suites and the type generation ran with the Supabase CLI against its local Postgres.
 - GitHub Actions (CI, release) have not run yet: check the first run, in particular the database job and the generated types check.
 - Open decision: license (AGPL-3.0 applied everywhere, MIT considered for the widget and plugins).
 

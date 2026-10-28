@@ -274,7 +274,7 @@ isOneToOne: false
                     {
       foreignKeyName: "notification_preferences_workspace_id_user_id_fkey"
       columns: ["workspace_id","user_id"]
-isOneToOne: false
+isOneToOne: true
       referencedRelation: "members"
       referencedColumns: ["workspace_id","user_id"]
     }
@@ -453,14 +453,14 @@ isOneToOne: false
                   ]
                 },"webhooks": {
                   Row: {
-                    "created_at": string,"enabled": boolean,"events": string[],"id": string,"kind": Database["public"]['Enums']["webhook_kind"],"last_delivery_at": string | null,"last_error": string | null,"last_status": number | null,"secret": string,"site_id": string,"updated_at": string,"url": string,"workspace_id": string
+                    "created_at": string,"enabled": boolean,"events": (string)[],"id": string,"kind": Database["public"]['Enums']["webhook_kind"],"last_delivery_at": string | null,"last_error": string | null,"last_status": number | null,"secret": string,"site_id": string,"updated_at": string,"url": string,"workspace_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"enabled"?: boolean,"events"?: string[],"id"?: string,"kind"?: Database["public"]['Enums']["webhook_kind"],"last_delivery_at"?: string | null,"last_error"?: string | null,"last_status"?: number | null,"secret"?: string,"site_id": string,"updated_at"?: string,"url": string,"workspace_id": string
+                    "created_at"?: string,"enabled"?: boolean,"events"?: (string)[],"id"?: string,"kind"?: Database["public"]['Enums']["webhook_kind"],"last_delivery_at"?: string | null,"last_error"?: string | null,"last_status"?: number | null,"secret"?: string,"site_id": string,"updated_at"?: string,"url": string,"workspace_id": string
                   }
                   Update: {
-                    "created_at"?: string,"enabled"?: boolean,"events"?: string[],"id"?: string,"kind"?: Database["public"]['Enums']["webhook_kind"],"last_delivery_at"?: string | null,"last_error"?: string | null,"last_status"?: number | null,"secret"?: string,"site_id"?: string,"updated_at"?: string,"url"?: string,"workspace_id"?: string
+                    "created_at"?: string,"enabled"?: boolean,"events"?: (string)[],"id"?: string,"kind"?: Database["public"]['Enums']["webhook_kind"],"last_delivery_at"?: string | null,"last_error"?: string | null,"last_status"?: number | null,"secret"?: string,"site_id"?: string,"updated_at"?: string,"url"?: string,"workspace_id"?: string
                   }
                   Relationships: [
                     {
@@ -560,7 +560,21 @@ isOneToOne: false
 { Args: { "body": string,"email_message_id": string,"from_email"?: string,"metadata"?: Json,"thread_id": string }; Returns: string
                            },
 "search_threads":
-{ Args: { "assignee"?: string,"label"?: string,"query"?: string,"site"?: string,"statuses"?: Database["public"]['Enums']["thread_status"][],"unassigned"?: boolean,"ws": string }; Returns: Database["public"]["Tables"]["threads"]["Row"][]
+{ Args: { "assignee"?: string,"label"?: string,"query"?: string,"site"?: string,"statuses"?: (Database["public"]['Enums']["thread_status"])[],"unassigned"?: boolean,"ws": string }; Returns: {
+              "assignee_id": string | null,
+"contact_id": string,
+"created_at": string,
+"follow_up_notified_at": string | null,
+"id": string,
+"labels": (string)[],
+"last_message_at": string,
+"site_id": string,
+"status": Database["public"]['Enums']["thread_status"],
+"subject": string | null,
+"updated_at": string,
+"widget_id": string | null,
+"workspace_id": string
+            }[]
                           SetofOptions: {
         from: "*"
         to: "threads"
