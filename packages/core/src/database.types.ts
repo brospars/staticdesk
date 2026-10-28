@@ -321,6 +321,26 @@ isOneToOne: false
       referencedColumns: ["id","workspace_id"]
     }
                   ]
+                },"webhooks": {
+                  Row: {
+                    "created_at": string,"enabled": boolean,"events": string[],"id": string,"kind": Database["public"]['Enums']["webhook_kind"],"last_delivery_at": string | null,"last_error": string | null,"last_status": number | null,"secret": string,"site_id": string,"updated_at": string,"url": string,"workspace_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"enabled"?: boolean,"events"?: string[],"id"?: string,"kind"?: Database["public"]['Enums']["webhook_kind"],"last_delivery_at"?: string | null,"last_error"?: string | null,"last_status"?: number | null,"secret"?: string,"site_id": string,"updated_at"?: string,"url": string,"workspace_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"enabled"?: boolean,"events"?: string[],"id"?: string,"kind"?: Database["public"]['Enums']["webhook_kind"],"last_delivery_at"?: string | null,"last_error"?: string | null,"last_status"?: number | null,"secret"?: string,"site_id"?: string,"updated_at"?: string,"url"?: string,"workspace_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "webhooks_site_id_workspace_id_fkey"
+      columns: ["site_id","workspace_id"]
+isOneToOne: false
+      referencedRelation: "sites"
+      referencedColumns: ["id","workspace_id"]
+    }
+                  ]
                 },"widgets": {
                   Row: {
                     "config": NonNullable<Json>,"created_at": string,"enabled": boolean,"id": string,"kind": Database["public"]['Enums']["widget_kind"],"name": string,"site_id": string,"updated_at": string,"workspace_id": string
@@ -381,16 +401,19 @@ isOneToOne: false
 { Args: { "bucket": string,"max_hits": number,"window_seconds": number }; Returns: boolean
                            },
 "submit_contact":
-{ Args: { "email": string,"message": string,"name"?: string,"page_id": string,"page_url"?: string,"site_id": string,"widget_id"?: string }; Returns: string
+{ Args: { "email": string,"fields"?: Json,"message": string,"name"?: string,"page_id": string,"page_url"?: string,"site_id": string,"widget_id"?: string }; Returns: string
                            },
 "workspace_members":
 { Args: { "ws": string }; Returns: {
               "email": string,"joined_at": string,"role": Database["public"]['Enums']["member_role"],"user_id": string
             }[]
+                           },
+"workspace_notification_emails":
+{ Args: { "ws": string }; Returns: string[]
                            }
           }
           Enums: {
-            "auto_reply_trigger": "new_thread"|"outside_hours","event_type": "view"|"open"|"submit"|"comment"|"reaction"|"review","member_role": "owner"|"admin"|"member","message_direction": "inbound"|"outbound"|"note","moderation_status": "pending"|"approved"|"rejected"|"spam","plan": "free"|"pro"|"team","thread_status": "open"|"pending"|"resolved","widget_kind": "contact"|"comments"|"reactions"|"reviews"
+            "auto_reply_trigger": "new_thread"|"outside_hours","event_type": "view"|"open"|"submit"|"comment"|"reaction"|"review","member_role": "owner"|"admin"|"member","message_direction": "inbound"|"outbound"|"note","moderation_status": "pending"|"approved"|"rejected"|"spam","plan": "free"|"pro"|"team","thread_status": "open"|"pending"|"resolved","webhook_kind": "custom"|"slack"|"discord","widget_kind": "contact"|"comments"|"reactions"|"reviews"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -506,7 +529,7 @@ export type CompositeTypes<
 export const Constants = {
   "public": {
           Enums: {
-            "auto_reply_trigger": ["new_thread", "outside_hours"],"event_type": ["view", "open", "submit", "comment", "reaction", "review"],"member_role": ["owner", "admin", "member"],"message_direction": ["inbound", "outbound", "note"],"moderation_status": ["pending", "approved", "rejected", "spam"],"plan": ["free", "pro", "team"],"thread_status": ["open", "pending", "resolved"],"widget_kind": ["contact", "comments", "reactions", "reviews"]
+            "auto_reply_trigger": ["new_thread", "outside_hours"],"event_type": ["view", "open", "submit", "comment", "reaction", "review"],"member_role": ["owner", "admin", "member"],"message_direction": ["inbound", "outbound", "note"],"moderation_status": ["pending", "approved", "rejected", "spam"],"plan": ["free", "pro", "team"],"thread_status": ["open", "pending", "resolved"],"webhook_kind": ["custom", "slack", "discord"],"widget_kind": ["contact", "comments", "reactions", "reviews"]
           }
         }
 } as const

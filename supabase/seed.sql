@@ -46,7 +46,8 @@ insert into public.sites (id, workspace_id, name, public_key, allowed_origins) v
 
 insert into public.widgets (id, workspace_id, site_id, kind, name, config) values
   ('44444444-4444-4444-4444-000000000001', '22222222-2222-2222-2222-222222222222',
-   '33333333-3333-3333-3333-333333333333', 'contact', 'Contact', '{"title": "Contact us"}'),
+   '33333333-3333-3333-3333-333333333333', 'contact', 'Contact',
+   '{"title": "Contact us", "fields": [{"id": "topic", "type": "select", "label": "Topic", "required": false, "options": ["Question", "Bug report", "Other"]}]}'),
   ('44444444-4444-4444-4444-000000000002', '22222222-2222-2222-2222-222222222222',
    '33333333-3333-3333-3333-333333333333', 'comments', 'Comments', '{"allowAnonymous": true, "moderation": "post"}'),
   ('44444444-4444-4444-4444-000000000003', '22222222-2222-2222-2222-222222222222',
