@@ -1,7 +1,7 @@
 # StaticDesk: notes for coding agents
 
 Embeddable forms, comments, likes and reviews for static sites, with a shared
-inbox. Open source (AGPL-3.0), self-hostable, and offered as a SaaS.
+inbox. Open source, self-hostable, and offered as a SaaS.
 Product plan: `ROADMAP.md`. Write all code, docs, comments and commit messages in English.
 
 ## Stack
@@ -21,6 +21,8 @@ Nuxt 3 / Nuxt UI 2-3 / Tailwind 3 / Zod 3 examples.
 - `packages/core`: Zod schemas and types shared by the API and the widget
 - `packages/widget`: browser SDK, built as an IIFE `widget.js` (15 kB gzip budget)
 - `packages/integrations/docusaurus`: `@staticdesk/docusaurus-plugin` (no runtime dependencies, compiled with tsc to `lib/`)
+- Licenses: AGPL-3.0 everywhere, except `packages/widget` and `packages/integrations/*` (MIT,
+  own `LICENSE` file). These MIT packages must not bundle code from the AGPL packages: type-only imports.
 - `docker/`: self-hosting with Docker Compose (`Dockerfile` at the root); guide in `docs/self-hosting.md`
 
 ## Commands (from the repo root)

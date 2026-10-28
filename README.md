@@ -108,4 +108,11 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Security issues: see [SECURITY.md](SECUR
 
 ## License
 
-[AGPL-3.0](LICENSE)
+StaticDesk is licensed under the [AGPL-3.0](LICENSE): if you run a modified version as a
+service, you must publish your changes.
+
+The code that runs on your site is licensed under the [MIT license](packages/widget/LICENSE), so
+you can embed and bundle it anywhere:
+
+- `packages/widget` (`@staticdesk/widget`)
+- `packages/integrations/*` (framework plugins such as `@staticdesk/docusaurus-plugin`)

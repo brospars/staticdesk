@@ -71,3 +71,7 @@ staticdesk-contact {
 
 See the [widget documentation](https://github.com/brospars/staticdesk/tree/main/packages/widget)
 for every variable and attribute.
+
+## License
+
+[MIT](LICENSE)

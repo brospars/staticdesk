@@ -17,7 +17,7 @@ Legend: 🧑 = manual action (account, configuration, decision) · 💻 = develo
 - Still untested against real services: Resend (inbound replies, bounces, sending domains), GitHub and Google sign-in, Turnstile, webhooks to Slack and Discord, Vercel deployment and crons.
 - `packages/core/src/database.types.ts` is generated (`npm run db:types`, checked by CI): the pgTAP suites and the type generation ran with the Supabase CLI against its local Postgres.
 - GitHub Actions (CI, release) have not run yet: check the first run, in particular the database job and the generated types check.
-- Open decision: license (AGPL-3.0 applied everywhere, MIT considered for the widget and plugins).
+- License: AGPL-3.0 for the server, MIT for the widget and the framework plugins.
 
 ---
 
@@ -41,7 +41,7 @@ Legend: 🧑 = manual action (account, configuration, decision) · 💻 = develo
 - [ ] 🧑 Register the trademark (optional at first, do it before the public launch)
 
 ### Product and technical decisions
-- [ ] 🧑 License: **AGPL-3.0** (recommended for an open-core SaaS: it prevents a competitor from reselling the service without publishing their changes) or MIT/Apache-2.0 (wider adoption, less protection). AGPL-3.0 is currently applied by default; MIT could suit the widget and plugins
+- [x] 🧑 License: **AGPL-3.0** for the app and the server (prevents a competitor from reselling the service without publishing their changes), **MIT** for the code embedded in sites (`@staticdesk/widget`, `packages/integrations/*`)
 - [ ] 🧑 Open source model: all code in the public repository, SaaS features (billing, quotas) enabled by environment variables, no closed `ee/` folder
 - [ ] 🧑 Self-hosting strategy: self-hosted Supabase (official Docker setup) **or** Postgres + simple auth. Recommendation: support self-hosted Supabase in v1, without tight coupling (database access through a repository layer)
 - [ ] 🧑 Email when self-hosted: Resend **or** generic SMTP (shared adapter)
