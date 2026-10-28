@@ -9,6 +9,15 @@ Open source and free to self-host, or use the hosted SaaS.
 
 > **Status:** early development. See the [roadmap](ROADMAP.md).
 
+## Embedding
+
+```html
+<script src="https://staticdesk.app/widget.js" data-site="pk_your_site_key" defer></script>
+<staticdesk-contact mode="floating"></staticdesk-contact>
+```
+
+See [packages/widget](packages/widget/README.md) for attributes and styling.
+
 ## Stack
 
 Nuxt 4 · Nuxt UI 4 · Supabase · Resend · Stripe · Vercel

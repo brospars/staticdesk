@@ -156,7 +156,7 @@ Legend: 🧑 = manual action (account, configuration, decision) · 💻 = develo
 - [ ] 💻 Publish to npm (`@staticdesk/widget`) and to a CDN (jsDelivr/unpkg and a versioned `staticdesk.app/widget.js`)
   - [x] 💻 Publishable package and Changesets release workflow
   - [ ] 🧑 Add the `NPM_TOKEN` secret, then merge the "Version packages" PR to publish 0.1.0
-- [ ] 💻 Dashboard settings for a site: allowed origins, theme, language, Turnstile (the API reads them; editing them needs a settings page)
+- [x] 💻 Dashboard settings for a site: allowed origins, theme, language, Turnstile, enabled widgets
 
 ---
 

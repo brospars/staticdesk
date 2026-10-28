@@ -39,7 +39,17 @@ Nuxt 3 / Nuxt UI 2-3 / Tailwind 3 / Zod 3 examples.
   (`supabase/tests/database`). Some tables use column-level grants (e.g. visitor
   fingerprints and edit tokens are hidden): select explicit columns, not `*`.
 - Public widget traffic never queries tables directly: it goes through the Nuxt
-  server API, which validates input and uses the service-role client.
+  server API (`apps/web/server/api/v1/public`), which validates input and uses
+  the service-role client. `server/middleware/public-api.ts` resolves the site
+  and enforces its allowed origins; use `usePublicSite(event)` in those routes.
+- Never store visitor IPs: use `visitorFingerprint()` (daily per-site HMAC) for
+  rate limiting and deduplication.
+- Validate database ids with `z.guid()`, not `z.uuid()` (Postgres accepts ids
+  that are not RFC 4122, like the seed's).
+- The widget (`packages/widget`) has no runtime dependencies and only imports
+  types from `@staticdesk/core`. Keep it under the 15 kB gzip budget, render
+  in the shadow root, never use innerHTML with visitor or site data (use `h()`),
+  and add every visible string to `src/i18n.ts` in English and French.
 - Regenerate `packages/core/src/database.types.ts` with `npm run db:types` after a migration.
 - Billing code must be inert when `STATICDESK_EDITION=selfhost`.
 - Conventional Commits. Add a changeset when a published package changes.
