@@ -7,7 +7,7 @@ Think Disqus + Crisp/Intercom, without the live chat.
 
 Open source and free to self-host, or use the hosted SaaS.
 
-> **Status:** early development. See the [roadmap](ROADMAP.md) (in French).
+> **Status:** early development. See the [roadmap](ROADMAP.md).
 
 ## Stack
 

@@ -2,7 +2,7 @@
 
 Embeddable forms, comments, likes and reviews for static sites, with a shared
 inbox. Open source (AGPL-3.0), self-hostable, and offered as a SaaS.
-Product plan: `ROADMAP.md` (French).
+Product plan: `ROADMAP.md`. Write all code, docs, comments and commit messages in English.
 
 ## Stack
 
