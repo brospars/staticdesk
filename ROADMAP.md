@@ -28,7 +28,7 @@ Legend: 🧑 = manual action (account, configuration, decision) · 💻 = develo
 - [ ] 🧑 Check that handles are free: GitHub org, npm (`@staticdesk/*`), X/Twitter, Bluesky, Mastodon, LinkedIn, Product Hunt, Discord
 - [ ] 🧑 Register `staticdesk.app` with the free domain included in Vercel Pro (still available on 2026-10-27)
 - [ ] 🧑 (Optional) Buy `staticdesk.dev` for the docs and demo, or as a redirect
-- [ ] 🧑 Rename the GitHub repository `formdesk` to `staticdesk` (GitHub redirects the old URL)
+- [x] 🧑 Rename the GitHub repository `formdesk` to `staticdesk` (GitHub redirects the old URL)
 - [ ] 🧑 Register the trademark (optional at first, do it before the public launch)
 
 ### Product and technical decisions
