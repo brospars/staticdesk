@@ -53,12 +53,12 @@ grant execute on function public.hit_rate_limit to service_role;
 -- Returns the new thread id.
 create function public.submit_contact(
   site_id uuid,
-  widget_id uuid,
   email text,
-  name text,
   message text,
   page_id text,
-  page_url text
+  widget_id uuid default null,
+  name text default null,
+  page_url text default null
 )
 returns uuid
 language plpgsql

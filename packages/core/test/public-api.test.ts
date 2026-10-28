@@ -43,3 +43,10 @@ describe('public schemas', () => {
     expect(publicContactRequestSchema.safeParse({ ...base, widgetId: 'nope' }).success).toBe(false)
   })
 })
+
+describe('ids', () => {
+  it('accepts any Postgres uuid, including non-RFC 4122 ones used in seeds', () => {
+    const base = { email: 'ada@example.com', message: 'Hi', pageId: '/', elapsedMs: 5000 }
+    expect(publicContactRequestSchema.safeParse({ ...base, widgetId: '44444444-4444-4444-4444-000000000001' }).success).toBe(true)
+  })
+})

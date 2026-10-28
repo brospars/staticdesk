@@ -381,7 +381,7 @@ isOneToOne: false
 { Args: { "bucket": string,"max_hits": number,"window_seconds": number }; Returns: boolean
                            },
 "submit_contact":
-{ Args: { "email": string,"message": string,"name": string,"page_id": string,"page_url": string,"site_id": string,"widget_id": string }; Returns: string
+{ Args: { "email": string,"message": string,"name"?: string,"page_id": string,"page_url"?: string,"site_id": string,"widget_id"?: string }; Returns: string
                            },
 "workspace_members":
 { Args: { "ws": string }; Returns: {

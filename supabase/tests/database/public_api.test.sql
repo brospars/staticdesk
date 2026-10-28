@@ -28,8 +28,13 @@ select ok(public.hit_rate_limit('test:b', 60, 2), 'buckets are independent');
 
 select isnt(
   public.submit_contact(
-    'bbbbbbbb-0000-0000-0000-000000000001', 'cccccccc-0000-0000-0000-000000000001',
-    'Ada@Example.com', 'Ada', e'Question about pricing\nMore details here.', '/pricing', 'https://docs.acme.dev/pricing'
+    site_id => 'bbbbbbbb-0000-0000-0000-000000000001',
+    widget_id => 'cccccccc-0000-0000-0000-000000000001',
+    email => 'Ada@Example.com',
+    name => 'Ada',
+    message => e'Question about pricing\nMore details here.',
+    page_id => '/pricing',
+    page_url => 'https://docs.acme.dev/pricing'
   ),
   null,
   'a submission returns the thread id'
@@ -63,8 +68,11 @@ select is(
 );
 
 select public.submit_contact(
-  'bbbbbbbb-0000-0000-0000-000000000001', 'cccccccc-0000-0000-0000-000000000002',
-  'ada@example.com', null, 'Second message', '/', null
+  site_id => 'bbbbbbbb-0000-0000-0000-000000000001',
+  widget_id => 'cccccccc-0000-0000-0000-000000000002',
+  email => 'ada@example.com',
+  message => 'Second message',
+  page_id => '/'
 );
 
 select is(
@@ -88,7 +96,7 @@ select is(
 reset role;
 set local role authenticated;
 select throws_ok(
-  $$ select public.submit_contact('bbbbbbbb-0000-0000-0000-000000000001', null, 'x@example.com', null, 'Hi', '/', null) $$,
+  $$ select public.submit_contact('bbbbbbbb-0000-0000-0000-000000000001', 'x@example.com', 'Hi', '/') $$,
   '42501',
   null,
   'dashboard users cannot call submit_contact'

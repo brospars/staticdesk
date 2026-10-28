@@ -20,6 +20,8 @@ export interface PublicWidget {
   config: Record<string, unknown>
 }
 
+// Database ids: Postgres accepts any 8-4-4-4-12 hex value, not only RFC 4122
+// UUIDs, so z.guid() rather than z.uuid().
 const pageFields = {
   pageId: z.string().trim().min(1).max(500),
   pageUrl: z.url().max(2000).optional(),
@@ -28,7 +30,7 @@ const pageFields = {
 /** POST /api/v1/public/sites/:key/events. Submissions are recorded server-side. */
 export const publicEventSchema = z.object({
   type: z.enum(['view', 'open']),
-  widgetId: z.uuid().optional(),
+  widgetId: z.guid().optional(),
   ...pageFields,
 })
 
@@ -45,7 +47,7 @@ export const antiSpamSchema = z.object({
 
 /** POST /api/v1/public/sites/:key/contact */
 export const publicContactRequestSchema = contactSubmissionSchema.extend({
-  widgetId: z.uuid().optional(),
+  widgetId: z.guid().optional(),
   ...pageFields,
 }).extend(antiSpamSchema.shape)
 
