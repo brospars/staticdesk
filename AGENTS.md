@@ -75,6 +75,14 @@ Nuxt 3 / Nuxt UI 2-3 / Tailwind 3 / Zod 3 examples.
   shared by the widget API and the plain HTML form endpoint (`server/routes/f/[id].post.ts`).
   It sends the team email and webhooks (`server/utils/webhooks.ts`) after the response
   with `event.waitUntil()`.
+- Auto-replies: rules in `auto_replies` (dashboard: `pages/app/settings/auto-replies.vue`, `components/automation/*`),
+  opening hours and `follow_up_hours` on `workspaces`. Schemas, `planAutomation()` and `isWithinOpeningHours()` are in
+  `packages/core/src/schemas/automation.ts`. `runAutomation()` (`server/utils/automation/auto-replies.ts`) runs after each
+  contact submission: labels, assigns, and queues one `auto_reply_deliveries` row per thread, sent right away or by
+  `server/api/cron/automation.get.ts` (claimed with `claim_auto_reply_deliveries()`), which also sends follow-up reminders
+  (`claim_follow_up_reminders()`). Auto-replies are outbound messages without an author, flagged with `metadata.autoReply`.
+- Markdown in emails: `renderMarkdown()` in `packages/core/src/utils/markdown.ts` (escapes everything; variables
+  are inserted as text through its `variable` option, never parsed).
 - Contact form configuration (`widgets.config`): `contactWidgetConfigSchema` in
   `packages/core/src/schemas/widget-config.ts`; custom fields in `schemas/contact-form.ts`.
 - Email: `useMailer()` in `apps/web/server/utils/mailer.ts` (`log` or `resend` driver;
