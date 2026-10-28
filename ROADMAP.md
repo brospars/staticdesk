@@ -89,7 +89,8 @@ Legend: 🧑 = manual action (account, configuration, decision) · 💻 = develo
 - [ ] 🧑 Set up uptime monitoring and a status page (Better Stack, Instatus or Upptime on GitHub Pages)
 
 ### Environment variables
-- [ ] 🧑 Set in Vercel (see `apps/web/.env.example`): `NUXT_PUBLIC_SUPABASE_URL`, `NUXT_PUBLIC_SUPABASE_KEY`, `NUXT_SUPABASE_SECRET_KEY`, `NUXT_MAIL_DRIVER=resend`, `NUXT_MAIL_FROM`, `NUXT_MAIL_RESEND_API_KEY`, `NUXT_PUBLIC_APP_URL`, `NUXT_PUBLIC_AUTH_PROVIDERS`, `NUXT_PUBLIC_EDITION=saas`, then the Resend webhook, Stripe and Sentry secrets when those phases land
+- [ ] 🧑 Set in Vercel (see `apps/web/.env.example`): `NUXT_PUBLIC_SUPABASE_URL`, `NUXT_PUBLIC_SUPABASE_KEY`, `NUXT_SUPABASE_SECRET_KEY`, `NUXT_MAIL_DRIVER=resend`, `NUXT_MAIL_FROM`, `NUXT_MAIL_RESEND_API_KEY`, `NUXT_PUBLIC_APP_URL`, `NUXT_PUBLIC_AUTH_PROVIDERS`, `NUXT_PUBLIC_EDITION=saas`, `NUXT_FINGERPRINT_SECRET` (long random string), optionally `NUXT_PUBLIC_TURNSTILE_SITE_KEY` and `NUXT_TURNSTILE_SECRET_KEY`, then the Resend webhook, Stripe and Sentry secrets when those phases land
+- [ ] 🧑 Create an npm access token for the `@staticdesk` scope and add it as the `NPM_TOKEN` GitHub Actions secret (used by the release workflow)
 
 ---
 
@@ -135,22 +136,27 @@ Legend: 🧑 = manual action (account, configuration, decision) · 💻 = develo
 - [x] 💻 Sign-in with magic link, GitHub and Google
 - [x] 💻 Workspace creation on first sign-in
 - [x] 💻 Invite members by email (Resend)
-- [x] 💻 Onboarding: create a site, pick a widget, copy the snippet, verify the installation ("first event received", active once the widget sends events in phase 3)
+- [x] 💻 Onboarding: create a site, pick a widget, copy the snippet, verify the installation ("first event received")
 
 ---
 
 ## Phase 3: widget core and public API
 
-- [ ] 💻 Single `widget.js` loader: `<script src=".../widget.js" data-site="pk_xxx" defer></script>`
-- [ ] 💻 Web Components: `<staticdesk-contact>`, `<staticdesk-comments>`, `<staticdesk-reactions>`, `<staticdesk-reviews>`, plus a floating button mode
-- [ ] 💻 Shadow DOM isolation, theming with CSS variables, automatic dark mode (`prefers-color-scheme`), customizable colors, font and copy
-- [ ] 💻 Widget i18n (English and French to start, `navigator.language` detection, overridable)
-- [ ] 💻 Accessibility: focus trap, ARIA, keyboard navigation, contrast (WCAG AA)
-- [ ] 💻 SPA compatibility: detect route changes (Docusaurus, VitePress), configurable canonical page ID
-- [ ] 💻 Public API `/api/v1/public/*`: CORS limited to the site's declared domains, one public key per site
-- [ ] 💻 Anti-spam: honeypot, minimum fill time, rate limiting per IP and per site (Upstash or a Postgres table), optional Cloudflare Turnstile
-- [ ] 💻 Privacy: no third-party cookies by default and hashed IPs, so no cookie banner is needed
+- [x] 💻 Single `widget.js` loader: `<script src=".../widget.js" data-site="pk_xxx" defer></script>` (served by the app, 5.8 kB gzip)
+- [ ] 💻 Web Components, plus a floating button mode:
+  - [x] 💻 `<staticdesk-contact>` (inline and floating)
+  - [ ] 💻 `<staticdesk-comments>`, `<staticdesk-reactions>`, `<staticdesk-reviews>` (phase 7)
+- [x] 💻 Shadow DOM isolation, theming with CSS variables, automatic dark mode (`prefers-color-scheme`), customizable colors, font and copy
+- [x] 💻 Widget i18n (English and French to start, `navigator.language` detection, overridable)
+- [x] 💻 Accessibility: focus trap, ARIA, keyboard navigation, contrast (WCAG AA)
+- [x] 💻 SPA compatibility: detect route changes (Docusaurus, VitePress), configurable canonical page ID
+- [x] 💻 Public API `/api/v1/public/*`: CORS limited to the site's declared domains, one public key per site
+- [x] 💻 Anti-spam: honeypot, minimum fill time, rate limiting per IP and per site (Upstash or a Postgres table → Postgres), optional Cloudflare Turnstile
+- [x] 💻 Privacy: no third-party cookies by default and hashed IPs, so no cookie banner is needed
 - [ ] 💻 Publish to npm (`@staticdesk/widget`) and to a CDN (jsDelivr/unpkg and a versioned `staticdesk.app/widget.js`)
+  - [x] 💻 Publishable package and Changesets release workflow
+  - [ ] 🧑 Add the `NPM_TOKEN` secret, then merge the "Version packages" PR to publish 0.1.0
+- [ ] 💻 Dashboard settings for a site: allowed origins, theme, language, Turnstile (the API reads them; editing them needs a settings page)
 
 ---
 
