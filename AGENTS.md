@@ -62,8 +62,8 @@ Nuxt 3 / Nuxt UI 2-3 / Tailwind 3 / Zod 3 examples.
 - Env vars: `apps/web/.env.example` (runtime config keys in `apps/web/nuxt.config.ts`).
 - Migrations: `supabase/migrations`; seed (dev user `dev@staticdesk.local` / `password`,
   site key `pk_demo000000000000000000`): `supabase/seed.sql`.
-- Dashboard pages: `apps/web/app/pages/app/*` (inbox, onboarding, sites, widgets/[id] for the
-  contact form editor, settings/*); current workspace via `useWorkspaces()`. They use the
+- Dashboard pages: `apps/web/app/pages/app/*` (inbox, comments, feedback, onboarding, sites, widgets/[id] for the
+  widget settings, settings/*); current workspace via `useWorkspaces()`. They use the
   `dashboard` layout (sidebar); pages that lay out their own `UDashboardPanel`s set
   `panels: true` in `definePageMeta` (see `pages/app/inbox.vue`).
 - Shared inbox: `pages/app/inbox.vue` (list, filters through `search_threads()`) and
@@ -84,6 +84,12 @@ Nuxt 3 / Nuxt UI 2-3 / Tailwind 3 / Zod 3 examples.
   contact submission: labels, assigns, and queues one `auto_reply_deliveries` row per thread, sent right away or by
   `server/api/cron/automation.get.ts` (claimed with `claim_auto_reply_deliveries()`), which also sends follow-up reminders
   (`claim_follow_up_reminders()`). Auto-replies are outbound messages without an author, flagged with `metadata.autoReply`.
+- Comments and reactions: public routes `comments*.ts` and `reactions*.ts` under `server/api/v1/public/sites/[key]`,
+  helpers in `server/utils/community/*`, schemas in `packages/core/src/schemas/community.ts` (moderation rules:
+  `commentNeedsApproval()`), widget configs in `schemas/widget-config.ts`. Visitors edit or remove what they posted with a
+  secret kept in `localStorage`: comments store its hash (`edit_token_hash`), reaction tokens are HMACs of the id
+  (`visitorToken()`). Dashboard: `pages/app/comments.vue` (moderation queue), `pages/app/feedback.vue` (`page_feedback()`),
+  widget settings in `components/widget/*`.
 - Markdown in emails: `renderMarkdown()` in `packages/core/src/utils/markdown.ts` (escapes everything; variables
   are inserted as text through its `variable` option, never parsed).
 - Contact form configuration (`widgets.config`): `contactWidgetConfigSchema` in

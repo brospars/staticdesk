@@ -14,6 +14,10 @@ Open source and free to self-host, or use the hosted SaaS.
 ```html
 <script src="https://staticdesk.app/widget.js" data-site="pk_your_site_key" defer></script>
 <staticdesk-contact mode="floating"></staticdesk-contact>
+
+<!-- Under a page: -->
+<staticdesk-reactions></staticdesk-reactions>
+<staticdesk-comments></staticdesk-comments>
 ```
 
 See [packages/widget](packages/widget/README.md) for attributes and styling.
