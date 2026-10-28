@@ -5,9 +5,17 @@ const route = useRoute()
 const supabase = useSupabaseClient()
 const user = useSupabaseUser()
 const { workspaces, current, select } = useWorkspaces()
+const { pendingComments } = usePendingComments()
 
 const links = computed<NavigationMenuItem[][]>(() => [[
   { label: 'Inbox', icon: 'i-lucide-inbox', to: '/app/inbox' },
+  {
+    label: 'Comments',
+    icon: 'i-lucide-message-square',
+    to: '/app/comments',
+    badge: pendingComments.value ? { label: String(pendingComments.value), color: 'primary' as const, variant: 'subtle' as const } : undefined,
+  },
+  { label: 'Feedback', icon: 'i-lucide-thumbs-up', to: '/app/feedback' },
   { label: 'Sites', icon: 'i-lucide-globe', to: '/app/sites' },
   {
     label: 'Settings',

@@ -6,6 +6,7 @@ import {
   siteSettingsFormSchema,
   type SiteSettingsForm,
   type SiteSettingsFormInput,
+  type WidgetKind,
 } from '@staticdesk/core'
 
 definePageMeta({ layout: 'dashboard' })
@@ -103,6 +104,27 @@ async function toggleWidget(id: string, enabled: boolean) {
   const { error } = await supabase.from('widgets').update({ enabled }).eq('id', id)
   if (error) toast.add({ title: 'Could not update the widget', description: error.message, color: 'error' })
   await refresh()
+}
+
+const kindOptions = [
+  { label: 'Contact form', value: 'contact', name: 'Contact form' },
+  { label: 'Comments', value: 'comments', name: 'Comments' },
+  { label: 'Reactions and “Was this helpful?”', value: 'reactions', name: 'Reactions' },
+] satisfies { label: string, value: WidgetKind, name: string }[]
+const newKind = ref<(typeof kindOptions)[number]['value']>('comments')
+
+async function addWidget() {
+  const { name } = kindOptions.find(option => option.value === newKind.value)!
+  const { data, error } = await supabase
+    .from('widgets')
+    .insert({ workspace_id: site.value!.workspace_id, site_id: siteId, kind: newKind.value, name })
+    .select('id')
+    .single()
+  if (error) {
+    toast.add({ title: 'Could not add the widget', description: error.message, color: 'error' })
+    return
+  }
+  await navigateTo(`/app/widgets/${data.id}`)
 }
 
 function snippetFor(kind: Parameters<typeof buildEmbedSnippet>[0]['kind']) {
@@ -264,7 +286,7 @@ function snippetFor(kind: Parameters<typeof buildEmbedSnippet>[0]['kind']) {
             </div>
             <div class="flex items-center gap-4">
               <UButton
-                v-if="widget.kind === 'contact'"
+                v-if="widget.kind !== 'reviews'"
                 :to="`/app/widgets/${widget.id}`"
                 size="sm"
                 color="neutral"
@@ -293,6 +315,27 @@ function snippetFor(kind: Parameters<typeof buildEmbedSnippet>[0]['kind']) {
               @click="copy(snippetFor(widget.kind))"
             />
           </div>
+        </div>
+
+        <div
+          v-if="canManage"
+          class="flex flex-wrap items-center gap-3 border-t border-default pt-6"
+        >
+          <USelect
+            v-model="newKind"
+            :items="kindOptions"
+            aria-label="Widget type"
+            class="w-72"
+          />
+          <UButton
+            icon="i-lucide-plus"
+            color="neutral"
+            variant="outline"
+            loading-auto
+            @click="addWidget"
+          >
+            Add a widget
+          </UButton>
         </div>
       </div>
     </UPageCard>
