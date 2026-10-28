@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { serverSupabaseClient } from '#supabase/server'
+import { serverSupabaseClient, serverSupabaseServiceRole } from '#supabase/server'
 
 import { invitationEmail } from '../../../emails/invitation'
 
@@ -46,6 +46,8 @@ export default defineEventHandler(async (event): Promise<{ id: string }> => {
   }
 
   try {
+    // Sign-ups are closed: give the invitee an account to sign in with.
+    if (useRuntimeConfig(event).inviteOnly) await ensureAccount(serverSupabaseServiceRole(event).auth.admin, email)
     await useMailer().send(invitationEmail({
       to: email,
       workspaceName: workspace.name,
@@ -55,7 +57,7 @@ export default defineEventHandler(async (event): Promise<{ id: string }> => {
   }
   catch (cause) {
     await supabase.from('invitations').delete().eq('id', invitation.id)
-    console.error('[invitations] email failed', cause)
+    console.error('[invitations] invitation failed', cause)
     throw createError({ statusCode: 502, statusMessage: 'Could not send the invitation email' })
   }
 

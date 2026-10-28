@@ -37,6 +37,10 @@ export default defineNuxtConfig({
     scheduler: '',
     // Address the server uses to reach Supabase when the public URL does not work from it.
     supabaseInternalUrl: '',
+    // Invite-only instances (Supabase Auth refuses sign-ups): the server creates the
+    // accounts of invited people, and of adminEmail on startup.
+    inviteOnly: false,
+    adminEmail: '',
     // Secret used to derive daily visitor fingerprints (hashed IP + user agent).
     fingerprintSecret: '',
     // Read the client IP from X-Forwarded-For (true behind Vercel or a reverse proxy).

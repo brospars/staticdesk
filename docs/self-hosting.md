@@ -67,7 +67,7 @@ services. Besides `SITE_URL` and SMTP:
 
 | Variable | Description |
 | --- | --- |
-| `DISABLE_SIGNUP` | `true` refuses new accounts once your team has signed up. Invited members then cannot create their account: leave it `false` while inviting. |
+| `DISABLE_SIGNUP`, `ADMIN_EMAIL` | Invite-only instance: `true` refuses sign-ups, except for people invited to a workspace. Set `ADMIN_EMAIL` to have your own account created on startup. |
 | `AUTH_PROVIDERS`, `GITHUB_*`, `GOOGLE_*` | GitHub and Google sign-in. The OAuth callback URL is `<SITE_URL>/auth/v1/callback`. |
 | `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | Cloudflare Turnstile, for sites that require a challenge. |
 | `MAIL_DRIVER=resend`, `RESEND_API_KEY` | Send StaticDesk emails with Resend instead of SMTP. With `MAIL_INBOUND_DOMAIN` and `RESEND_WEBHOOK_SECRET`, visitors can reply to emails and their replies land in the inbox (see the main README). Sign-in emails always use SMTP. |

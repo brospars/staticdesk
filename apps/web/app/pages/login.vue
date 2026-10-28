@@ -58,7 +58,11 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     options: { emailRedirectTo: callbackUrl() },
   })
   if (error) {
-    toast.add({ title: 'Could not send the link', description: error.message, color: 'error' })
+    // Invite-only instances refuse unknown addresses.
+    const description = error.code === 'signup_disabled' || error.code === 'otp_disabled'
+      ? 'This StaticDesk is invite-only: ask a workspace admin to invite you.'
+      : error.message
+    toast.add({ title: 'Could not send the link', description, color: 'error' })
     return
   }
   emailSent.value = event.data.email

@@ -315,7 +315,7 @@ Legend: 🧑 = manual action (account, configuration, decision) · 💻 = develo
 - [x] 💻 `Dockerfile` (Nuxt with the `node-server` preset) and `docker/docker-compose.yml` (app + Supabase Postgres, Auth, PostgREST, Realtime and Storage behind Caddy, one origin, automatic HTTPS)
 - [x] 💻 Email adapter: Resend or generic SMTP (`NUXT_MAIL_DRIVER=smtp`)
 - [x] 💻 Migrations applied on startup (`migrate` service); the first account signs up with a magic link
-  - [ ] 💻 Optional admin account created from environment variables, and an app-level "invitation only" mode (`DISABLE_SIGNUP` also blocks invited members today)
+  - [x] 💻 Invite-only mode (`DISABLE_SIGNUP`): the server creates the accounts of invited people, and of `ADMIN_EMAIL` on startup
 - [x] 💻 Built-in scheduler for the `/api/cron/*` jobs (`NUXT_SCHEDULER=internal`)
 - [x] 💻 Images published to GHCR from `main` and version tags (multi-arch amd64/arm64, `.github/workflows/docker.yml`)
   - [ ] 🧑 Check the first workflow run, then make the GHCR package public

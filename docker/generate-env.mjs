@@ -35,9 +35,10 @@ SMTP_USER=
 SMTP_PASS=
 SMTP_SENDER_NAME=StaticDesk
 
-# Set to true once your team has signed up, to refuse new accounts.
-# Invited members then need an account created by an admin.
+# Invite-only: true refuses sign-ups. Invited people still get an account, and
+# ADMIN_EMAIL is created on startup so the first admin can sign in.
 DISABLE_SIGNUP=false
+ADMIN_EMAIL=
 
 # Optional: GitHub and Google sign-in (callback URL: <SITE_URL>/auth/v1/callback).
 # List the enabled ones in AUTH_PROVIDERS, e.g. github,google.
