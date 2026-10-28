@@ -1,23 +1,12 @@
-import { timingSafeEqual } from 'node:crypto'
 import { serverSupabaseServiceRole } from '#supabase/server'
 
 import { dailyDigestEmail } from '../../emails/daily-digest'
 
 const DAY_MS = 24 * 60 * 60 * 1000
 
-function authorized(header: string | undefined, secret: string) {
-  if (!secret || !header) return false
-  const expected = Buffer.from(`Bearer ${secret}`)
-  const actual = Buffer.from(header)
-  return actual.length === expected.length && timingSafeEqual(actual, expected)
-}
-
 // Daily inbox digest for members who opted in. Called by Vercel Cron (or any scheduler).
 export default defineEventHandler(async (event) => {
-  const secret = String(useRuntimeConfig(event).cronSecret || process.env.CRON_SECRET || '')
-  if (!authorized(getRequestHeader(event, 'authorization'), secret)) {
-    throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
-  }
+  requireCronSecret(event)
 
   const supabase = serverSupabaseServiceRole(event)
   const { data: subscribed, error } = await supabase
