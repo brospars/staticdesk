@@ -25,7 +25,7 @@ const turnstileAvailable = Boolean(config.public.turnstileSiteKey)
 const { data: site, refresh } = await useAsyncData(`site-${siteId}`, async () => {
   const { data, error } = await supabase
     .from('sites')
-    .select('id, name, public_key, allowed_origins, settings, widgets(id, kind, name, enabled)')
+    .select('id, workspace_id, name, public_key, allowed_origins, settings, widgets(id, kind, name, enabled)')
     .eq('id', siteId)
     .maybeSingle()
   if (error) throw error
@@ -260,12 +260,24 @@ function snippetFor(kind: Parameters<typeof buildEmbedSnippet>[0]['kind']) {
                 {{ widget.kind }}
               </p>
             </div>
-            <USwitch
-              :model-value="widget.enabled"
-              :disabled="!canManage"
-              :label="widget.enabled ? 'Enabled' : 'Disabled'"
-              @update:model-value="value => toggleWidget(widget.id, value)"
-            />
+            <div class="flex items-center gap-4">
+              <UButton
+                v-if="widget.kind === 'contact'"
+                :to="`/app/widgets/${widget.id}`"
+                size="sm"
+                color="neutral"
+                variant="outline"
+                icon="i-lucide-settings-2"
+              >
+                Configure
+              </UButton>
+              <USwitch
+                :model-value="widget.enabled"
+                :disabled="!canManage"
+                :label="widget.enabled ? 'Enabled' : 'Disabled'"
+                @update:model-value="value => toggleWidget(widget.id, value)"
+              />
+            </div>
           </div>
           <div class="relative">
             <pre class="overflow-x-auto rounded-md bg-elevated p-3 pr-12 text-xs"><code>{{ snippetFor(widget.kind) }}</code></pre>
@@ -282,5 +294,11 @@ function snippetFor(kind: Parameters<typeof buildEmbedSnippet>[0]['kind']) {
         </div>
       </div>
     </UPageCard>
+
+    <SiteWebhooksCard
+      v-if="canManage && site"
+      :site-id="site.id"
+      :workspace-id="site.workspace_id"
+    />
   </UContainer>
 </template>
