@@ -15,6 +15,7 @@ const links = computed<NavigationMenuItem[][]>(() => [[
     defaultOpen: route.path.startsWith('/app/settings'),
     children: [
       { label: 'Members', to: '/app/settings/members' },
+      { label: 'Auto-replies', to: '/app/settings/auto-replies' },
       { label: 'Notifications', to: '/app/settings/notifications' },
       { label: 'Saved replies', to: '/app/settings/saved-replies' },
       { label: 'Sending domain', to: '/app/settings/sending-domain' },

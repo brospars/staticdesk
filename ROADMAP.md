@@ -12,9 +12,9 @@ Legend: 🧑 = manual action (account, configuration, decision) · 💻 = develo
 
 ## Status (2026-10-28)
 
-- Done: phases 2 and 3 (except the comments, reactions and reviews elements, planned in phase 7), phase 4 except attachments, and phase 5 (shared inbox). **Next: phase 6** (auto-replies), then attachments for phase 4.
-- Not yet verified against a real Supabase stack (Auth, PostgREST, Realtime) or real Resend inbound emails: sign-in, onboarding writes, invitations, the public API, the plain HTML form endpoint, the widget editor, webhooks and the whole inbox (list, replies, inbound webhook, Realtime presence, sending domains). They were tested with unit tests, pgTAP on Postgres 16 and 17 and a mocked REST server. Run `npm run db:start` and try the flows end to end.
-- `packages/core/src/database.types.ts` was edited by hand for the phase 4 and 5 migrations (the Supabase CLI could not run here): run `npm run db:types` and commit any diff.
+- Done: phases 2 and 3 (except the comments, reactions and reviews elements, planned in phase 7), phase 4 except attachments, phase 5 (shared inbox) and phase 6 (auto-replies, except AI suggestions). **Next:** attachments for phase 4, then the rest of the MVP (phase 10): the Docusaurus plugin (phase 9) and `docker compose` self-hosting (phase 12).
+- Not yet verified against a real Supabase stack (Auth, PostgREST, Realtime) or real Resend inbound emails: sign-in, onboarding writes, invitations, the public API, the plain HTML form endpoint, the widget editor, webhooks, the whole inbox (list, replies, inbound webhook, Realtime presence, sending domains) and auto-replies (rules page, sending, `/api/cron/automation`). They were tested with unit tests, pgTAP on Postgres 16 and 17 and a mocked REST server. Run `npm run db:start` and try the flows end to end.
+- `packages/core/src/database.types.ts` was edited by hand for the phase 4 and 5 migrations (the Supabase CLI could not run here; the phase 6 changes were generated against a local Postgres): run `npm run db:types` and commit any diff.
 - GitHub Actions (CI, release) have not run yet: check the first run, in particular the database job and the generated types check.
 - Open decision: license (AGPL-3.0 applied everywhere, MIT considered for the widget and plugins).
 
@@ -201,11 +201,13 @@ Legend: 🧑 = manual action (account, configuration, decision) · 💻 = develo
 
 ## Phase 6: auto-replies
 
-- [ ] 💻 Automatic acknowledgement to the visitor (editable template, `{{name}}` and `{{site}}` variables)
-- [ ] 💻 Out-of-office message and opening hours
-- [ ] 💻 Simple rules: per site, per form, per keyword or per field, with auto-labeling and auto-assignment
-- [ ] 💻 Automatic follow-up when there is no reply after X hours (internal reminder)
-- [ ] 💻 Email editor (Markdown or React Email / Vue Email) with preview
+- [x] 💻 Automatic acknowledgement to the visitor (editable template, `{{name}}`, `{{email}}` and `{{site}}` variables), sent right away or after a delay (skipped if the team answers first), stored in the conversation, flagged `Auto-Submitted: auto-replied`
+- [x] 💻 Out-of-office message and opening hours (per workspace, with a time zone; out-of-hours rules win over the acknowledgement)
+- [x] 💻 Simple rules: per site, per form, per keyword or per field, with auto-labeling and auto-assignment (Settings, Auto-replies; ordered, one email per conversation)
+- [x] 💻 Automatic follow-up when there is no reply after X hours (internal reminder email, following the reply notification preferences)
+- [x] 💻 Email editor (Markdown subset rendered by `renderMarkdown()` in `@staticdesk/core`) with preview; visitor values are inserted as plain text
+- [ ] 🧑 Vercel Cron runs `/api/cron/automation` every 5 minutes (delayed auto-replies, reminders): this needs a Vercel plan that allows frequent crons, or another scheduler calling it with `CRON_SECRET`
+- [ ] 💻 Retry failed auto-reply emails (one attempt for now; failures are shown in the conversation)
 - [ ] 💻 Later: AI-suggested replies based on the site's documentation (optional)
 
 ---
@@ -274,7 +276,7 @@ Legend: 🧑 = manual action (account, configuration, decision) · 💻 = develo
 - [ ] 💻 Auth, workspace and sites (phase 2)
 - [ ] 💻 Contact widget and floating button (phases 3 and 4)
 - [x] 💻 Minimal shared inbox: list, read, reply by email, status (phase 5)
-- [ ] 💻 Automatic acknowledgement (phase 6)
+- [x] 💻 Automatic acknowledgement (phase 6)
 - [ ] 💻 HTML snippet and Docusaurus plugin (phase 9)
 - [ ] 💻 Self-hosting with `docker compose` (phase 12)
 - [ ] 🧑 Dogfooding: install StaticDesk on our own docs and landing page

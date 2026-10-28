@@ -7,17 +7,23 @@ export type Database = {
           Tables: {
             "auto_replies": {
                   Row: {
-                    "body": string,"conditions": NonNullable<Json>,"created_at": string,"delay_minutes": number,"enabled": boolean,"id": string,"name": string,"site_id": string | null,"subject": string,"trigger": Database["public"]['Enums']["auto_reply_trigger"],"updated_at": string,"workspace_id": string
+                    "add_labels": (string)[],"assignee_id": string | null,"body": string | null,"conditions": NonNullable<Json>,"created_at": string,"delay_minutes": number,"enabled": boolean,"id": string,"name": string,"position": number,"send_email": boolean,"site_id": string | null,"subject": string | null,"trigger": Database["public"]['Enums']["auto_reply_trigger"],"updated_at": string,"workspace_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "body": string,"conditions"?: NonNullable<Json>,"created_at"?: string,"delay_minutes"?: number,"enabled"?: boolean,"id"?: string,"name": string,"site_id"?: string | null,"subject": string,"trigger"?: Database["public"]['Enums']["auto_reply_trigger"],"updated_at"?: string,"workspace_id": string
+                    "add_labels"?: (string)[],"assignee_id"?: string | null,"body"?: string | null,"conditions"?: NonNullable<Json>,"created_at"?: string,"delay_minutes"?: number,"enabled"?: boolean,"id"?: string,"name": string,"position"?: number,"send_email"?: boolean,"site_id"?: string | null,"subject"?: string | null,"trigger"?: Database["public"]['Enums']["auto_reply_trigger"],"updated_at"?: string,"workspace_id": string
                   }
                   Update: {
-                    "body"?: string,"conditions"?: NonNullable<Json>,"created_at"?: string,"delay_minutes"?: number,"enabled"?: boolean,"id"?: string,"name"?: string,"site_id"?: string | null,"subject"?: string,"trigger"?: Database["public"]['Enums']["auto_reply_trigger"],"updated_at"?: string,"workspace_id"?: string
+                    "add_labels"?: (string)[],"assignee_id"?: string | null,"body"?: string | null,"conditions"?: NonNullable<Json>,"created_at"?: string,"delay_minutes"?: number,"enabled"?: boolean,"id"?: string,"name"?: string,"position"?: number,"send_email"?: boolean,"site_id"?: string | null,"subject"?: string | null,"trigger"?: Database["public"]['Enums']["auto_reply_trigger"],"updated_at"?: string,"workspace_id"?: string
                   }
                   Relationships: [
                     {
+      foreignKeyName: "auto_replies_assignee_fkey"
+      columns: ["workspace_id","assignee_id"]
+isOneToOne: false
+      referencedRelation: "members"
+      referencedColumns: ["workspace_id","user_id"]
+    },{
       foreignKeyName: "auto_replies_site_id_workspace_id_fkey"
       columns: ["site_id","workspace_id"]
 isOneToOne: false
@@ -29,6 +35,38 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "workspaces"
       referencedColumns: ["id"]
+    }
+                  ]
+                },"auto_reply_deliveries": {
+                  Row: {
+                    "auto_reply_id": string,"created_at": string,"id": string,"message_id": string | null,"reason": string | null,"send_at": string,"status": string,"thread_id": string,"updated_at": string,"workspace_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "auto_reply_id": string,"created_at"?: string,"id"?: string,"message_id"?: string | null,"reason"?: string | null,"send_at"?: string,"status"?: string,"thread_id": string,"updated_at"?: string,"workspace_id": string
+                  }
+                  Update: {
+                    "auto_reply_id"?: string,"created_at"?: string,"id"?: string,"message_id"?: string | null,"reason"?: string | null,"send_at"?: string,"status"?: string,"thread_id"?: string,"updated_at"?: string,"workspace_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "auto_reply_deliveries_auto_reply_id_fkey"
+      columns: ["auto_reply_id"]
+isOneToOne: false
+      referencedRelation: "auto_replies"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "auto_reply_deliveries_message_id_fkey"
+      columns: ["message_id"]
+isOneToOne: false
+      referencedRelation: "messages"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "auto_reply_deliveries_thread_id_workspace_id_fkey"
+      columns: ["thread_id","workspace_id"]
+isOneToOne: false
+      referencedRelation: "threads"
+      referencedColumns: ["id","workspace_id"]
     }
                   ]
                 },"blocked_fingerprints": {
@@ -351,14 +389,14 @@ isOneToOne: true
                   ]
                 },"threads": {
                   Row: {
-                    "assignee_id": string | null,"contact_id": string,"created_at": string,"id": string,"labels": (string)[],"last_message_at": string,"site_id": string,"status": Database["public"]['Enums']["thread_status"],"subject": string | null,"updated_at": string,"widget_id": string | null,"workspace_id": string
+                    "assignee_id": string | null,"contact_id": string,"created_at": string,"follow_up_notified_at": string | null,"id": string,"labels": (string)[],"last_message_at": string,"site_id": string,"status": Database["public"]['Enums']["thread_status"],"subject": string | null,"updated_at": string,"widget_id": string | null,"workspace_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "assignee_id"?: string | null,"contact_id": string,"created_at"?: string,"id"?: string,"labels"?: (string)[],"last_message_at"?: string,"site_id": string,"status"?: Database["public"]['Enums']["thread_status"],"subject"?: string | null,"updated_at"?: string,"widget_id"?: string | null,"workspace_id": string
+                    "assignee_id"?: string | null,"contact_id": string,"created_at"?: string,"follow_up_notified_at"?: string | null,"id"?: string,"labels"?: (string)[],"last_message_at"?: string,"site_id": string,"status"?: Database["public"]['Enums']["thread_status"],"subject"?: string | null,"updated_at"?: string,"widget_id"?: string | null,"workspace_id": string
                   }
                   Update: {
-                    "assignee_id"?: string | null,"contact_id"?: string,"created_at"?: string,"id"?: string,"labels"?: (string)[],"last_message_at"?: string,"site_id"?: string,"status"?: Database["public"]['Enums']["thread_status"],"subject"?: string | null,"updated_at"?: string,"widget_id"?: string | null,"workspace_id"?: string
+                    "assignee_id"?: string | null,"contact_id"?: string,"created_at"?: string,"follow_up_notified_at"?: string | null,"id"?: string,"labels"?: (string)[],"last_message_at"?: string,"site_id"?: string,"status"?: Database["public"]['Enums']["thread_status"],"subject"?: string | null,"updated_at"?: string,"widget_id"?: string | null,"workspace_id"?: string
                   }
                   Relationships: [
                     {
@@ -423,14 +461,14 @@ isOneToOne: false
                   ]
                 },"workspaces": {
                   Row: {
-                    "created_at": string,"id": string,"name": string,"plan": Database["public"]['Enums']["plan"],"slug": string,"stripe_customer_id": string | null,"updated_at": string
+                    "created_at": string,"follow_up_hours": number | null,"id": string,"name": string,"opening_hours": NonNullable<Json>,"plan": Database["public"]['Enums']["plan"],"slug": string,"stripe_customer_id": string | null,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"id"?: string,"name": string,"plan"?: Database["public"]['Enums']["plan"],"slug": string,"stripe_customer_id"?: string | null,"updated_at"?: string
+                    "created_at"?: string,"follow_up_hours"?: number | null,"id"?: string,"name": string,"opening_hours"?: NonNullable<Json>,"plan"?: Database["public"]['Enums']["plan"],"slug": string,"stripe_customer_id"?: string | null,"updated_at"?: string
                   }
                   Update: {
-                    "created_at"?: string,"id"?: string,"name"?: string,"plan"?: Database["public"]['Enums']["plan"],"slug"?: string,"stripe_customer_id"?: string | null,"updated_at"?: string
+                    "created_at"?: string,"follow_up_hours"?: number | null,"id"?: string,"name"?: string,"opening_hours"?: NonNullable<Json>,"plan"?: Database["public"]['Enums']["plan"],"slug"?: string,"stripe_customer_id"?: string | null,"updated_at"?: string
                   }
                   Relationships: [
                     
@@ -441,11 +479,37 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "create_workspace":
+            "claim_auto_reply_deliveries":
+{ Args: { "max_count"?: number,"thread"?: string }; Returns: {
+              "auto_reply_id": string,
+"created_at": string,
+"id": string,
+"message_id": string | null,
+"reason": string | null,
+"send_at": string,
+"status": string,
+"thread_id": string,
+"updated_at": string,
+"workspace_id": string
+            }[]
+                          SetofOptions: {
+        from: "*"
+        to: "auto_reply_deliveries"
+        isOneToOne: false
+        isSetofReturn: true
+      } },
+"claim_follow_up_reminders":
+{ Args: { "max_count"?: number }; Returns: {
+              "follow_up_hours": number,"subject": string,"thread_id": string,"waiting_since": string,"workspace_id": string
+            }[]
+                           },
+"create_workspace":
 { Args: { "name": string,"slug": string }; Returns: {
               "created_at": string,
+"follow_up_hours": number | null,
 "id": string,
 "name": string,
+"opening_hours": NonNullable<Json>,
 "plan": Database["public"]['Enums']["plan"],
 "slug": string,
 "stripe_customer_id": string | null,

@@ -48,10 +48,14 @@ export default defineNuxtConfig({
   },
   compatibilityDate: '2026-10-27',
   nitro: {
-    // Vercel Cron: daily inbox digest at 07:00 UTC.
+    // Vercel Cron: daily inbox digest at 07:00 UTC; delayed auto-replies and
+    // follow-up reminders every 5 minutes (needs a plan allowing frequent crons).
     vercel: {
       config: {
-        crons: [{ path: '/api/cron/digest', schedule: '0 7 * * *' }],
+        crons: [
+          { path: '/api/cron/digest', schedule: '0 7 * * *' },
+          { path: '/api/cron/automation', schedule: '*/5 * * * *' },
+        ],
       },
     },
     // Serves /widget.js from the widget package build. Short cache: the URL is not versioned.

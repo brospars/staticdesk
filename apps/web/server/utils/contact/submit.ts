@@ -62,7 +62,8 @@ export type ContactSubmissionResult = { status: 'stored', threadId: string, form
 
 /**
  * Shared by the widget API and plain HTML forms: anti-spam checks, field
- * validation, storage, then the team email and webhooks after the response.
+ * validation, storage, then the team email, webhooks and auto-replies after
+ * the response.
  * Throws HTTP errors (400 with field errors, 429).
  */
 export async function submitContactMessage(event: H3Event, site: PublicSite, input: ContactSubmissionInput): Promise<ContactSubmissionResult> {
@@ -116,10 +117,11 @@ export async function submitContactMessage(event: H3Event, site: PublicSite, inp
     fields,
     page: { id: input.pageId, url: input.pageUrl ?? null },
   }
-  // Notifications must not slow down or fail the visitor's request.
+  // Notifications and auto-replies must not slow down or fail the visitor's request.
   event.waitUntil(Promise.allSettled([
     form.config.notifyTeam ? notifyTeam(event, site, payload) : Promise.resolve(),
     dispatchContactWebhooks(event, site.id, payload),
+    runAutomation(event, site.workspaceId, payload),
   ]))
 
   return { status: 'stored', threadId, form }

@@ -109,14 +109,37 @@ insert into public.reviews (workspace_id, site_id, widget_id, rating, title, bod
   ('22222222-2222-2222-2222-222222222222', '33333333-3333-3333-3333-333333333333', '44444444-4444-4444-4444-000000000004',
    5, 'Exactly what our docs needed', 'Set up in five minutes on GitHub Pages.', 'Linus', 'approved');
 
--- Auto-reply and a few analytics events ---------------------------------------------
+-- Opening hours, auto-reply rules and a few analytics events ----------------------
 
-insert into public.auto_replies (workspace_id, name, subject, body) values (
-  '22222222-2222-2222-2222-222222222222',
-  'Acknowledgement',
-  'We received your message',
-  'Hi {{name}}, thanks for reaching out to {{site}}. We usually reply within one business day.'
-);
+update public.workspaces
+set opening_hours = '{
+  "enabled": true,
+  "timezone": "Europe/Paris",
+  "days": [
+    {"enabled": true, "start": "09:00", "end": "18:00"},
+    {"enabled": true, "start": "09:00", "end": "18:00"},
+    {"enabled": true, "start": "09:00", "end": "18:00"},
+    {"enabled": true, "start": "09:00", "end": "18:00"},
+    {"enabled": true, "start": "09:00", "end": "17:00"},
+    {"enabled": false, "start": "09:00", "end": "18:00"},
+    {"enabled": false, "start": "09:00", "end": "18:00"}
+  ]
+}',
+  follow_up_hours = 24
+where id = '22222222-2222-2222-2222-222222222222';
+
+insert into public.auto_replies (workspace_id, name, position, trigger, subject, body, send_email, add_labels, assignee_id, conditions) values
+  ('22222222-2222-2222-2222-222222222222', 'Acknowledgement', 0, 'new_thread',
+   'We received your message',
+   E'Hi {{name|there}},\n\nThanks for reaching out to **{{site}}**. We usually reply within one business day.',
+   true, '{}', null, '{}'),
+  ('22222222-2222-2222-2222-222222222222', 'Out of office', 1, 'outside_hours',
+   'We are away right now',
+   E'Hi {{name|there}},\n\nThanks for your message! Our team is available Monday to Friday, 9:00 to 18:00 (Paris time). We will answer as soon as we are back.',
+   true, '{}', null, '{}'),
+  ('22222222-2222-2222-2222-222222222222', 'Billing questions', 2, 'new_thread',
+   null, null, false, '{billing}', '11111111-1111-1111-1111-111111111111',
+   '{"keywords": ["invoice", "refund", "billing"]}');
 
 insert into public.events (workspace_id, site_id, widget_id, type, page_id, occurred_at)
 select
