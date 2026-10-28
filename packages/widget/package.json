@@ -1,8 +1,24 @@
 {
   "name": "@staticdesk/widget",
   "version": "0.0.0",
+  "description": "Embeddable contact forms, comments and reactions for static sites (StaticDesk)",
   "license": "AGPL-3.0-only",
-  "private": true,
+  "homepage": "https://staticdesk.app",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brospars/staticdesk.git",
+    "directory": "packages/widget"
+  },
+  "keywords": [
+    "contact-form",
+    "comments",
+    "widget",
+    "static-site",
+    "docusaurus",
+    "mkdocs",
+    "jekyll",
+    "web-components"
+  ],
   "type": "module",
   "files": [
     "dist"
@@ -12,7 +28,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "dev": "vite build --watch"
+    "dev": "vite build --watch",
+    "prepublishOnly": "npm run build"
   },
   "devDependencies": {
     "@nuxt/eslint-config": "^1.17.0",
@@ -22,5 +39,14 @@
     "typescript": "^6.0.3",
     "vite": "^8.3.5",
     "vitest": "^5.0.5"
+  },
+  "main": "./dist/widget.js",
+  "unpkg": "./dist/widget.js",
+  "jsdelivr": "./dist/widget.js",
+  "exports": {
+    ".": "./dist/widget.js"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
