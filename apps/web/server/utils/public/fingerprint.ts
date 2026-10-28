@@ -37,3 +37,11 @@ export function visitorFingerprint(event: H3Event, siteId: string): string {
     day: new Date().toISOString().slice(0, 10),
   })
 }
+
+/**
+ * Secret handed to a visitor for something they posted (e.g. a reaction id),
+ * so they can change it later without an account. Derived, never stored.
+ */
+export function visitorToken(event: H3Event, purpose: string, id: string): string {
+  return createHmac('sha256', fingerprintSecret(event)).update(`${purpose}|${id}`).digest('base64url')
+}

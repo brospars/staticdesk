@@ -24,7 +24,7 @@ export function corsDecision(method: string, origin: string | undefined, site: P
     allowed: true,
     headers: {
       'Access-Control-Allow-Origin': origin,
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type',
       'Access-Control-Max-Age': '600',
       'Vary': 'Origin',

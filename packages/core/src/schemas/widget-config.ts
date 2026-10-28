@@ -64,3 +64,86 @@ export const contactWidgetFormSchema = z.object({
 
 export type ContactWidgetFormInput = z.input<typeof contactWidgetFormSchema>
 export type ContactWidgetForm = z.output<typeof contactWidgetFormSchema>
+
+/** Which comments wait for a moderator before they are published. */
+export const COMMENT_MODERATION_MODES = ['none', 'anonymous', 'all'] as const
+
+/** Keeps the valid, unique entries of a stored list. */
+function storedList<T extends z.ZodType<string>>(item: T, max: number) {
+  return z.array(z.unknown()).catch([]).transform((values) => {
+    const items: string[] = []
+    for (const value of values) {
+      const parsed = item.safeParse(value)
+      if (parsed.success && !items.includes(parsed.data)) items.push(parsed.data)
+    }
+    return items.slice(0, max)
+  })
+}
+
+const bannedWordSchema = z.string().trim().toLowerCase().min(1).max(60)
+
+/** Configuration of a comments widget (widgets.config). */
+export const commentsWidgetConfigSchema = z.object({
+  title: text(120),
+  /** Let visitors post without a name. */
+  allowAnonymous: z.boolean().catch(true),
+  moderation: z.enum(COMMENT_MODERATION_MODES).catch('anonymous'),
+  /** Comments containing one of these words (case-insensitive) wait for approval. */
+  bannedWords: storedList(bannedWordSchema, 200),
+  sort: z.enum(['oldest', 'newest']).catch('oldest'),
+})
+
+export type CommentsWidgetConfig = z.output<typeof commentsWidgetConfigSchema>
+
+export function parseCommentsWidgetConfig(value: unknown): CommentsWidgetConfig {
+  return commentsWidgetConfigSchema.parse(typeof value === 'object' && value !== null ? value : {})
+}
+
+/** Comments widget form in the dashboard. */
+export const commentsWidgetFormSchema = z.object({
+  name: z.string().trim().min(1, 'Name is required').max(120),
+  title: optionalText(120),
+  allowAnonymous: z.boolean(),
+  moderation: z.enum(COMMENT_MODERATION_MODES),
+  bannedWords: z.array(bannedWordSchema).max(200, 'Up to 200 words'),
+  sort: z.enum(['oldest', 'newest']),
+})
+
+export type CommentsWidgetFormInput = z.input<typeof commentsWidgetFormSchema>
+export type CommentsWidgetForm = z.output<typeof commentsWidgetFormSchema>
+
+// One emoji, possibly with modifiers and joiners (👍🏽, 👩‍💻, ❤️).
+const EMOJI = /^(?:\p{Extended_Pictographic}|\p{Emoji_Component}|‍|️)+$/u
+
+export const emojiSchema = z.string().trim().max(16).regex(EMOJI, 'Use a single emoji')
+
+/** Configuration of a reactions widget (widgets.config). */
+export const reactionsWidgetConfigSchema = z.object({
+  /** Question above the helpful / not helpful buttons. */
+  title: text(120),
+  /** Show "Was this page helpful?" with yes and no buttons. */
+  helpful: z.boolean().catch(true),
+  /** After a "no", ask what could be improved. */
+  askComment: z.boolean().catch(true),
+  /** Emoji reactions with a public counter. */
+  emojis: storedList(emojiSchema, 8),
+})
+
+export type ReactionsWidgetConfig = z.output<typeof reactionsWidgetConfigSchema>
+
+export function parseReactionsWidgetConfig(value: unknown): ReactionsWidgetConfig {
+  return reactionsWidgetConfigSchema.parse(typeof value === 'object' && value !== null ? value : {})
+}
+
+/** Reactions widget form in the dashboard. */
+export const reactionsWidgetFormSchema = z.object({
+  name: z.string().trim().min(1, 'Name is required').max(120),
+  title: optionalText(120),
+  helpful: z.boolean(),
+  askComment: z.boolean(),
+  emojis: z.array(emojiSchema).max(8, 'Up to 8 emojis')
+    .refine(emojis => new Set(emojis).size === emojis.length, 'Each emoji can only be listed once'),
+}).refine(form => form.helpful || form.emojis.length > 0, { message: 'Enable the helpful question or add an emoji', path: ['emojis'] })
+
+export type ReactionsWidgetFormInput = z.input<typeof reactionsWidgetFormSchema>
+export type ReactionsWidgetForm = z.output<typeof reactionsWidgetFormSchema>

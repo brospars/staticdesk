@@ -81,13 +81,7 @@ export async function submitContactMessage(event: H3Event, site: PublicSite, inp
   await enforceRateLimit(event, `contact:${site.id}:${fingerprint}`, 600, 5)
   await enforceRateLimit(event, `contact:${site.id}`, 3600, 200)
 
-  const config = useRuntimeConfig(event)
-  if (site.settings.turnstile && config.turnstileSecretKey) {
-    const ip = getRequestIP(event, { xForwardedFor: Boolean(config.trustProxy) })
-    if (!await verifyTurnstile(input.turnstileToken, String(config.turnstileSecretKey), ip)) {
-      throw createError({ statusCode: 400, statusMessage: 'The anti-spam challenge failed, please try again' })
-    }
-  }
+  await enforceTurnstile(event, site, input.turnstileToken)
 
   const validation = validateContactFields(form.config, input)
   if (!validation.ok) {
