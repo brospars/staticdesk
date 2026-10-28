@@ -15,6 +15,7 @@
   },
   "devDependencies": {
     "@nuxt/eslint-config": "^1.17.0",
+    "@staticdesk/core": "*",
     "eslint": "^10.13.0",
     "happy-dom": "^21.0.4",
     "typescript": "^6.0.3",
