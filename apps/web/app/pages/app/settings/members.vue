@@ -2,6 +2,8 @@
 import type { FormSubmitEvent, TableColumn } from '@nuxt/ui'
 import { z } from 'zod'
 
+definePageMeta({ layout: 'dashboard' })
+
 useSeoMeta({ title: 'Members · StaticDesk', robots: 'noindex' })
 
 const supabase = useSupabaseClient()
@@ -82,7 +84,7 @@ async function revoke(id: string) {
 </script>
 
 <template>
-  <UContainer class="space-y-8 py-12">
+  <UContainer class="space-y-8 py-8">
     <div>
       <h1 class="text-2xl font-semibold">
         Members

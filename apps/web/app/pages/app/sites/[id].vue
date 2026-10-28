@@ -8,6 +8,8 @@ import {
   type SiteSettingsFormInput,
 } from '@staticdesk/core'
 
+definePageMeta({ layout: 'dashboard' })
+
 useSeoMeta({ title: 'Site settings · StaticDesk', robots: 'noindex' })
 
 const route = useRoute()
@@ -111,7 +113,7 @@ function snippetFor(kind: Parameters<typeof buildEmbedSnippet>[0]['kind']) {
 <template>
   <UContainer
     v-if="site"
-    class="space-y-8 py-12"
+    class="space-y-8 py-8"
   >
     <div>
       <UButton

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+definePageMeta({ layout: 'dashboard' })
+
 useSeoMeta({ title: 'Sites · StaticDesk', robots: 'noindex' })
 
 const supabase = useSupabaseClient()
@@ -21,7 +23,7 @@ const { data: sites } = await useAsyncData(
 </script>
 
 <template>
-  <UContainer class="space-y-6 py-12">
+  <UContainer class="space-y-6 py-8">
     <div class="flex items-center justify-between">
       <h1 class="text-2xl font-semibold">
         Sites
