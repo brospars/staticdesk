@@ -12,9 +12,9 @@ Legend: 🧑 = manual action (account, configuration, decision) · 💻 = develo
 
 ## Status (2026-10-28)
 
-- Done: phases 2 and 3 (except the comments, reactions and reviews elements, planned in phase 7), and phase 4 except attachments. **Next: phase 5** (shared inbox), then attachments for phase 4.
-- Not yet verified against a real Supabase stack (Auth, PostgREST): sign-in, onboarding writes, invitations, the public API, the plain HTML form endpoint, the widget editor and webhooks. They were tested with unit tests, pgTAP on Postgres 16 and 17 and a mocked REST server. Run `npm run db:start` and try the flows end to end.
-- `packages/core/src/database.types.ts` was edited by hand for the phase 4 migration (the Supabase CLI could not run here): run `npm run db:types` and commit any diff.
+- Done: phases 2 and 3 (except the comments, reactions and reviews elements, planned in phase 7), phase 4 except attachments, and phase 5 (shared inbox). **Next: phase 6** (auto-replies), then attachments for phase 4.
+- Not yet verified against a real Supabase stack (Auth, PostgREST, Realtime) or real Resend inbound emails: sign-in, onboarding writes, invitations, the public API, the plain HTML form endpoint, the widget editor, webhooks and the whole inbox (list, replies, inbound webhook, Realtime presence, sending domains). They were tested with unit tests, pgTAP on Postgres 16 and 17 and a mocked REST server. Run `npm run db:start` and try the flows end to end.
+- `packages/core/src/database.types.ts` was edited by hand for the phase 4 and 5 migrations (the Supabase CLI could not run here): run `npm run db:types` and commit any diff.
 - GitHub Actions (CI, release) have not run yet: check the first run, in particular the database job and the generated types check.
 - Open decision: license (AGPL-3.0 applied everywhere, MIT considered for the widget and plugins).
 
@@ -97,7 +97,7 @@ Legend: 🧑 = manual action (account, configuration, decision) · 💻 = develo
 - [ ] 🧑 Set up uptime monitoring and a status page (Better Stack, Instatus or Upptime on GitHub Pages)
 
 ### Environment variables
-- [ ] 🧑 Set in Vercel (see `apps/web/.env.example`): `NUXT_PUBLIC_SUPABASE_URL`, `NUXT_PUBLIC_SUPABASE_KEY`, `NUXT_SUPABASE_SECRET_KEY`, `NUXT_MAIL_DRIVER=resend`, `NUXT_MAIL_FROM`, `NUXT_MAIL_RESEND_API_KEY`, `NUXT_PUBLIC_APP_URL`, `NUXT_PUBLIC_AUTH_PROVIDERS`, `NUXT_PUBLIC_EDITION=saas`, `NUXT_FINGERPRINT_SECRET` (long random string), optionally `NUXT_PUBLIC_TURNSTILE_SITE_KEY` and `NUXT_TURNSTILE_SECRET_KEY`, then the Resend webhook, Stripe and Sentry secrets when those phases land
+- [ ] 🧑 Set in Vercel (see `apps/web/.env.example`): `NUXT_PUBLIC_SUPABASE_URL`, `NUXT_PUBLIC_SUPABASE_KEY`, `NUXT_SUPABASE_SECRET_KEY`, `NUXT_MAIL_DRIVER=resend`, `NUXT_MAIL_FROM`, `NUXT_MAIL_RESEND_API_KEY`, `NUXT_PUBLIC_APP_URL`, `NUXT_PUBLIC_AUTH_PROVIDERS`, `NUXT_PUBLIC_EDITION=saas`, `NUXT_FINGERPRINT_SECRET` (long random string), optionally `NUXT_PUBLIC_TURNSTILE_SITE_KEY` and `NUXT_TURNSTILE_SECRET_KEY`; for the inbox `NUXT_MAIL_INBOUND_DOMAIN`, `NUXT_MAIL_REPLY_SECRET`, `NUXT_MAIL_RESEND_WEBHOOK_SECRET`, `CRON_SECRET` and `NUXT_CRON_SECRET` (same value); then the Stripe and Sentry secrets when those phases land
 - [ ] 🧑 Create an npm access token for the `@staticdesk` scope and add it as the `NPM_TOKEN` GitHub Actions secret (used by the release workflow)
 
 ---
@@ -184,15 +184,18 @@ Legend: 🧑 = manual action (account, configuration, decision) · 💻 = develo
 
 ## Phase 5: shared inbox
 
-- [ ] 💻 Inbox view: conversation list, filters (status, site, assignee, label), full-text search (Postgres FTS)
-- [ ] 💻 Conversation view: history, reply from the dashboard, sent through Resend from a `reply+<id>@` address
-- [ ] 💻 Receive visitor replies through Resend's inbound webhook, attached to the right thread
-- [ ] 💻 Statuses (open / pending / resolved), assignment, labels, internal notes
-- [ ] 💻 Realtime (Supabase Realtime): new messages and a "X is replying" indicator
-- [ ] 💻 Saved replies (canned responses)
-- [ ] 💻 Notifications: email, daily digest, per-member preferences
-- [ ] 💻 Custom sending domain per workspace (Team plan): DNS verification through the Resend API
-- [ ] 💻 Bounce and complaint handling (Resend webhook, then contact suppression)
+- [x] 💻 Inbox view: conversation list, filters (status, site, assignee, label), full-text search (Postgres FTS, `search_threads()`)
+- [x] 💻 Conversation view: history, reply from the dashboard, sent through Resend with a signed `reply+<thread>.<signature>@<inbound domain>` Reply-To
+- [x] 💻 Receive visitor replies through Resend's inbound webhook (`/api/inbound/resend`, Svix signature), attached to the right thread; quoted history stripped, out-of-office ignored, resolved threads reopened
+- [x] 💻 Statuses (open / pending / resolved), assignment, labels, internal notes
+- [x] 💻 Realtime (Supabase Realtime): new messages and thread changes, "X is replying" and "X is viewing" through presence on a private `inbox:<workspace>` channel
+- [x] 💻 Saved replies (canned responses) with `{{name}}`, `{{email}}`, `{{site}}` and `{{agent}}` variables
+- [x] 💻 Notifications: email, daily digest (Vercel Cron, `/api/cron/digest`), per-member preferences
+- [x] 💻 Custom sending domain per workspace (Team plan in the SaaS edition): DNS records and verification through the Resend API
+- [x] 💻 Bounce and complaint handling (Resend webhook, then contact suppression, which members can lift)
+- [ ] 🧑 Configure Resend inbound (`NUXT_MAIL_INBOUND_DOMAIN`, MX record) and the webhook (`email.received`, `email.bounced`, `email.complained` to `/api/inbound/resend`), then set `NUXT_MAIL_REPLY_SECRET`, `NUXT_MAIL_RESEND_WEBHOOK_SECRET` and `CRON_SECRET` / `NUXT_CRON_SECRET`
+- [ ] 💻 Unread state per member and keyboard shortcuts in the inbox
+- [ ] 💻 Store inbound email attachments (with phase 4 attachments; their names are kept for now)
 
 ---
 
@@ -270,7 +273,7 @@ Legend: 🧑 = manual action (account, configuration, decision) · 💻 = develo
 
 - [ ] 💻 Auth, workspace and sites (phase 2)
 - [ ] 💻 Contact widget and floating button (phases 3 and 4)
-- [ ] 💻 Minimal shared inbox: list, read, reply by email, status (phase 5)
+- [x] 💻 Minimal shared inbox: list, read, reply by email, status (phase 5)
 - [ ] 💻 Automatic acknowledgement (phase 6)
 - [ ] 💻 HTML snippet and Docusaurus plugin (phase 9)
 - [ ] 💻 Self-hosting with `docker compose` (phase 12)
