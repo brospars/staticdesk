@@ -3,7 +3,6 @@ import type { ContactField, ContactWidgetConfig, PublicWidget } from '@staticdes
 import { ApiError } from '../api'
 import { h, uid } from '../dom'
 import { focusFirst, trapFocus } from '../focus-trap'
-import { currentPage } from '../page'
 import { renderTurnstile, type TurnstileHandle } from '../turnstile'
 import { StaticDeskElement } from './base'
 
@@ -19,7 +18,7 @@ const styles = `
 }
 .sd-right { right: 20px; }
 .sd-left { left: 20px; }
-.sd-inline { padding: 22px; border: 1px solid var(--sd-border); border-radius: calc(var(--sd-radius) + 4px); background: var(--sd-bg); }
+.sd-inline { padding: 22px; }
 .sd-header { display: flex; align-items: start; justify-content: space-between; gap: 12px; }
 .sd-title { margin: 0 0 6px; font-size: 20px; line-height: 1.25; }
 .sd-description { margin: 0 0 18px; color: var(--sd-muted); }
@@ -121,7 +120,7 @@ export class StaticDeskContact extends StaticDeskElement {
     }
 
     if (!this.floating) {
-      this.root.append(h('section', { 'class': 'sd-inline', 'aria-labelledby': titleId }, ...body))
+      this.root.append(h('section', { 'class': 'sd-card sd-inline', 'aria-labelledby': titleId }, ...body))
       this.shownAt = Date.now()
       return
     }
@@ -218,7 +217,7 @@ export class StaticDeskContact extends StaticDeskElement {
     this.trigger!.setAttribute('aria-expanded', 'true')
     this.shownAt = Date.now()
     focusFirst(this.form.hidden ? this.success : this.form)
-    this.runtime!.api.track({ type: 'open', widgetId: this.widget!.id, ...currentPage() })
+    this.runtime!.api.track({ type: 'open', widgetId: this.widget!.id, ...this.page() })
   }
 
   close() {
@@ -276,7 +275,7 @@ export class StaticDeskContact extends StaticDeskElement {
         fields,
         attachments: attachments.length ? attachments : undefined,
         widgetId: this.widget!.id,
-        ...currentPage(),
+        ...this.page(),
         website: value('website') || undefined,
         elapsedMs: Date.now() - this.shownAt,
         turnstileToken: this.turnstile?.token() ?? undefined,

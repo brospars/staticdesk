@@ -1,6 +1,8 @@
 import { createApi } from './api'
 import { readConfig } from './config'
+import { StaticDeskComments } from './elements/comments'
 import { StaticDeskContact } from './elements/contact'
+import { StaticDeskReactions } from './elements/reactions'
 import { currentPage, onNavigate } from './page'
 import { getRuntime, setRuntime } from './runtime'
 
@@ -36,8 +38,13 @@ function boot() {
     openContact: () => document.querySelector<StaticDeskContact>('staticdesk-contact[mode="floating"]')?.open(),
   }
 
-  if (!customElements.get('staticdesk-contact')) {
-    customElements.define('staticdesk-contact', StaticDeskContact)
+  const elements: [string, CustomElementConstructor][] = [
+    ['staticdesk-contact', StaticDeskContact],
+    ['staticdesk-comments', StaticDeskComments],
+    ['staticdesk-reactions', StaticDeskReactions],
+  ]
+  for (const [name, element] of elements) {
+    if (!customElements.get(name)) customElements.define(name, element)
   }
 
   // One page view per page load and per single-page-app navigation.

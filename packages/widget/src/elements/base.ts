@@ -1,6 +1,7 @@
 import type { Locale, PublicSiteConfig } from '@staticdesk/core'
 
 import { resolveLocale, translator, type Translate } from '../i18n'
+import { currentPage, onNavigate, type PageInfo } from '../page'
 import { getRuntime, type Runtime } from '../runtime'
 import { baseStyles, themeStyles } from '../styles'
 
@@ -8,7 +9,8 @@ import { baseStyles, themeStyles } from '../styles'
  * Base class of the StaticDesk custom elements: a shadow root with the shared
  * styles, the site configuration, the theme and a translator.
  *
- * Attributes: `locale` ("en", "fr") and `theme` ("auto", "light", "dark").
+ * Attributes: `locale` ("en", "fr"), `theme` ("auto", "light", "dark") and,
+ * for the elements tied to a page, `page-id`.
  */
 export abstract class StaticDeskElement extends HTMLElement {
   protected readonly root: ShadowRoot
@@ -17,6 +19,7 @@ export abstract class StaticDeskElement extends HTMLElement {
   protected locale: Locale = 'en'
   protected t: Translate = translator('en')
   private loaded = false
+  private unlisten: (() => void) | null = null
 
   constructor() {
     super()
@@ -24,6 +27,11 @@ export abstract class StaticDeskElement extends HTMLElement {
   }
 
   async connectedCallback() {
+    if (this.onPageChange && !this.unlisten) {
+      this.unlisten = onNavigate(() => {
+        if (this.site) this.onPageChange!()
+      })
+    }
     if (this.loaded) return
     this.loaded = true
 
@@ -51,6 +59,18 @@ export abstract class StaticDeskElement extends HTMLElement {
     this.render()
   }
 
+  disconnectedCallback() {
+    this.unlisten?.()
+    this.unlisten = null
+  }
+
+  /** Page the element is about: the `page-id` attribute, else the page's canonical path. */
+  protected page(): PageInfo {
+    const page = currentPage()
+    const pageId = this.getAttribute('page-id')
+    return pageId ? { ...page, pageId } : page
+  }
+
   static get observedAttributes() {
     return ['theme']
   }
@@ -70,4 +90,6 @@ export abstract class StaticDeskElement extends HTMLElement {
   protected abstract styles(): string
   /** Builds the shadow DOM once the configuration is loaded. */
   protected abstract render(): void
+  /** Called when a single-page app navigates to another page. */
+  protected onPageChange?(): void
 }

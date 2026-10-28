@@ -47,6 +47,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
   background: var(--sd-bg);
 }
 textarea.sd-input { min-height: 120px; resize: vertical; }
+.sd-card { padding: 20px; border: 1px solid var(--sd-border); border-radius: calc(var(--sd-radius) + 4px); background: var(--sd-bg); }
 .sd-status { min-height: 1.5em; margin: 10px 0 0; color: var(--sd-danger); font-size: 14px; }
 .sd-visually-hidden {
   position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;

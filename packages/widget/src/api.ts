@@ -1,4 +1,15 @@
-import type { AttachmentUploadResponse, PublicContactRequest, PublicEvent, PublicSiteConfig } from '@staticdesk/core'
+import type {
+  AttachmentUploadResponse,
+  PublicCommentPosted,
+  PublicCommentRequest,
+  PublicCommentsResponse,
+  PublicContactRequest,
+  PublicEvent,
+  PublicReactionCounts,
+  PublicReactionPosted,
+  PublicReactionRequest,
+  PublicSiteConfig,
+} from '@staticdesk/core'
 
 import type { StaticDeskConfig } from './config'
 
@@ -14,6 +25,16 @@ export interface Api {
   submitContact(payload: PublicContactRequest): Promise<void>
   /** Uploads a file for a contact form and returns its attachment id. */
   uploadAttachment(file: File, widgetId: string): Promise<string>
+  reactions(pageId: string): Promise<PublicReactionCounts>
+  react(payload: PublicReactionRequest): Promise<PublicReactionPosted>
+  /** Removes a reaction with the token returned when it was posted. */
+  unreact(id: string, token: string): Promise<PublicReactionCounts>
+  /** Adds a comment to a "helpful" or "unhelpful" vote. */
+  commentReaction(id: string, token: string, comment: string): Promise<void>
+  comments(query: { pageId: string, widgetId?: string, offset?: number }): Promise<PublicCommentsResponse>
+  postComment(payload: PublicCommentRequest): Promise<PublicCommentPosted>
+  editComment(id: string, token: string, body: string): Promise<PublicCommentPosted>
+  deleteComment(id: string, token: string): Promise<void>
 }
 
 async function fail(response: Response): Promise<never> {
@@ -30,6 +51,20 @@ async function fail(response: Response): Promise<never> {
 export function createApi({ siteKey, apiBase }: StaticDeskConfig): Api {
   const base = `${apiBase}/api/v1/public/sites/${encodeURIComponent(siteKey)}`
   let config: Promise<PublicSiteConfig> | undefined
+
+  /** JSON request to the site's API; resolves with the parsed body, if any. */
+  async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
+    const response = await fetch(`${base}/${path}`, {
+      method,
+      headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    })
+    if (!response.ok) await fail(response)
+    return (response.status === 204 ? undefined : await response.json()) as T
+  }
+  const query = (values: Record<string, string | number | undefined>) =>
+    Object.entries(values).filter(([, value]) => value !== undefined)
+      .map(([name, value]) => `${name}=${encodeURIComponent(value!)}`).join('&')
 
   return {
     config() {
@@ -71,5 +106,14 @@ export function createApi({ siteKey, apiBase }: StaticDeskConfig): Api {
       if (!upload.ok) await fail(upload)
       return id
     },
+
+    reactions: pageId => request('GET', `reactions?${query({ pageId })}`),
+    react: payload => request('POST', 'reactions', payload),
+    unreact: (id, token) => request('DELETE', `reactions/${id}`, { token }),
+    commentReaction: (id, token, comment) => request('PATCH', `reactions/${id}`, { token, comment }),
+    comments: ({ pageId, widgetId, offset }) => request('GET', `comments?${query({ pageId, widgetId, offset })}`),
+    postComment: payload => request('POST', 'comments', payload),
+    editComment: (id, token, body) => request('PATCH', `comments/${id}`, { token, body }),
+    deleteComment: (id, token) => request('DELETE', `comments/${id}`, { token }),
   }
 }
