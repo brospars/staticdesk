@@ -85,14 +85,14 @@ isOneToOne: false
                   ]
                 },"contacts": {
                   Row: {
-                    "created_at": string,"email": string,"email_suppressed_at": string | null,"id": string,"name": string | null,"updated_at": string,"workspace_id": string
+                    "created_at": string,"email": string,"email_suppressed_at": string | null,"email_suppression_reason": string | null,"id": string,"name": string | null,"updated_at": string,"workspace_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"email": string,"email_suppressed_at"?: string | null,"id"?: string,"name"?: string | null,"updated_at"?: string,"workspace_id": string
+                    "created_at"?: string,"email": string,"email_suppressed_at"?: string | null,"email_suppression_reason"?: string | null,"id"?: string,"name"?: string | null,"updated_at"?: string,"workspace_id": string
                   }
                   Update: {
-                    "created_at"?: string,"email"?: string,"email_suppressed_at"?: string | null,"id"?: string,"name"?: string | null,"updated_at"?: string,"workspace_id"?: string
+                    "created_at"?: string,"email"?: string,"email_suppressed_at"?: string | null,"email_suppression_reason"?: string | null,"id"?: string,"name"?: string | null,"updated_at"?: string,"workspace_id"?: string
                   }
                   Relationships: [
                     {
@@ -189,6 +189,26 @@ isOneToOne: false
       referencedColumns: ["id","workspace_id"]
     }
                   ]
+                },"notification_preferences": {
+                  Row: {
+                    "daily_digest": boolean,"new_threads": string,"replies": string,"updated_at": string,"user_id": string,"workspace_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "daily_digest"?: boolean,"new_threads"?: string,"replies"?: string,"updated_at"?: string,"user_id": string,"workspace_id": string
+                  }
+                  Update: {
+                    "daily_digest"?: boolean,"new_threads"?: string,"replies"?: string,"updated_at"?: string,"user_id"?: string,"workspace_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "notification_preferences_workspace_id_user_id_fkey"
+      columns: ["workspace_id","user_id"]
+isOneToOne: false
+      referencedRelation: "members"
+      referencedColumns: ["workspace_id","user_id"]
+    }
+                  ]
                 },"rate_limits": {
                   Row: {
                     "hits": number,"key": string,"window_start": string
@@ -247,6 +267,46 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "widgets"
       referencedColumns: ["id","workspace_id"]
+    }
+                  ]
+                },"saved_replies": {
+                  Row: {
+                    "body": string,"created_at": string,"created_by": string | null,"id": string,"title": string,"updated_at": string,"workspace_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "body": string,"created_at"?: string,"created_by"?: string | null,"id"?: string,"title": string,"updated_at"?: string,"workspace_id": string
+                  }
+                  Update: {
+                    "body"?: string,"created_at"?: string,"created_by"?: string | null,"id"?: string,"title"?: string,"updated_at"?: string,"workspace_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "saved_replies_workspace_id_fkey"
+      columns: ["workspace_id"]
+isOneToOne: false
+      referencedRelation: "workspaces"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"sending_domains": {
+                  Row: {
+                    "created_at": string,"domain": string,"from_local_part": string,"provider_id": string | null,"records": NonNullable<Json>,"status": string,"updated_at": string,"verified_at": string | null,"workspace_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"domain": string,"from_local_part"?: string,"provider_id"?: string | null,"records"?: NonNullable<Json>,"status"?: string,"updated_at"?: string,"verified_at"?: string | null,"workspace_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"domain"?: string,"from_local_part"?: string,"provider_id"?: string | null,"records"?: NonNullable<Json>,"status"?: string,"updated_at"?: string,"verified_at"?: string | null,"workspace_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "sending_domains_workspace_id_fkey"
+      columns: ["workspace_id"]
+isOneToOne: true
+      referencedRelation: "workspaces"
+      referencedColumns: ["id"]
     }
                   ]
                 },"sites": {
@@ -400,8 +460,22 @@ isOneToOne: false
 "hit_rate_limit":
 { Args: { "bucket": string,"max_hits": number,"window_seconds": number }; Returns: boolean
                            },
+"receive_email_reply":
+{ Args: { "body": string,"email_message_id": string,"from_email"?: string,"metadata"?: Json,"thread_id": string }; Returns: string
+                           },
+"search_threads":
+{ Args: { "assignee"?: string,"label"?: string,"query"?: string,"site"?: string,"statuses"?: Database["public"]['Enums']["thread_status"][],"unassigned"?: boolean,"ws": string }; Returns: Database["public"]["Tables"]["threads"]["Row"][]
+                          SetofOptions: {
+        from: "*"
+        to: "threads"
+        isOneToOne: false
+        isSetofReturn: true
+      } },
 "submit_contact":
 { Args: { "email": string,"fields"?: Json,"message": string,"name"?: string,"page_id": string,"page_url"?: string,"site_id": string,"widget_id"?: string }; Returns: string
+                           },
+"suppress_email":
+{ Args: { "address": string,"reason": string }; Returns: number
                            },
 "workspace_members":
 { Args: { "ws": string }; Returns: {
@@ -409,6 +483,9 @@ isOneToOne: false
             }[]
                            },
 "workspace_notification_emails":
+{ Args: { "kind"?: string,"thread"?: string,"ws": string }; Returns: string[]
+                           },
+"workspace_thread_labels":
 { Args: { "ws": string }; Returns: string[]
                            }
           }
