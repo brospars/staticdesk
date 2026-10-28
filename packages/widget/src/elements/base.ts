@@ -43,13 +43,27 @@ export abstract class StaticDeskElement extends HTMLElement {
 
     this.locale = resolveLocale([this.getAttribute('locale'), this.runtime.config.locale, this.site.locale])
     this.t = translator(this.locale)
-    const mode = this.getAttribute('theme') ?? this.site.theme.mode
-    if (mode === 'light' || mode === 'dark') this.dataset.mode = mode
+    this.applyTheme()
 
     const style = document.createElement('style')
     style.textContent = baseStyles + themeStyles(this.site.theme.primaryColor) + this.styles()
     this.root.replaceChildren(style)
     this.render()
+  }
+
+  static get observedAttributes() {
+    return ['theme']
+  }
+
+  /** The `theme` attribute can change at any time, e.g. with the page's dark mode toggle. */
+  attributeChangedCallback() {
+    if (this.site) this.applyTheme()
+  }
+
+  private applyTheme() {
+    const mode = this.getAttribute('theme') ?? this.site!.theme.mode
+    if (mode === 'light' || mode === 'dark') this.dataset.mode = mode
+    else delete this.dataset.mode
   }
 
   /** Component-specific CSS. */

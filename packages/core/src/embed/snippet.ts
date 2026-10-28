@@ -89,3 +89,22 @@ export function buildHtmlFormSnippet({ actionUrl, nameField, fields, attachments
   lines.push('</form>')
   return lines.join('\n')
 }
+
+/** Script URL the Docusaurus plugin uses when none is given. */
+export const DEFAULT_WIDGET_SCRIPT_URL = 'https://staticdesk.app/widget.js'
+
+/** Install command and docusaurus.config.js excerpt for @staticdesk/docusaurus-plugin. */
+export function buildDocusaurusSnippet({ scriptUrl, siteKey }: Pick<EmbedSnippetOptions, 'scriptUrl' | 'siteKey'>): string {
+  const options = [`siteKey: '${siteKey.replace(/[^\w]/g, '')}'`]
+  // Self-hosted servers serve their own widget.js.
+  if (scriptUrl !== DEFAULT_WIDGET_SCRIPT_URL) options.push(`scriptUrl: '${scriptUrl.replace(/['\\\n]/g, '')}'`)
+  return [
+    '// npm install @staticdesk/docusaurus-plugin',
+    '// docusaurus.config.js',
+    'export default {',
+    '  plugins: [',
+    `    ['@staticdesk/docusaurus-plugin', { ${options.join(', ')} }],`,
+    '  ],',
+    '}',
+  ].join('\n')
+}

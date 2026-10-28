@@ -60,6 +60,15 @@ describe('<staticdesk-contact>', () => {
     expect(root.querySelector('[role="dialog"]')).toBeNull()
   })
 
+  it('follows changes of the theme attribute', async () => {
+    const { element } = await mount({ theme: 'dark' })
+    expect(element.dataset.mode).toBe('dark')
+    element.setAttribute('theme', 'light')
+    expect(element.dataset.mode).toBe('light')
+    element.removeAttribute('theme')
+    expect(element.dataset.mode).toBeUndefined()
+  })
+
   it('translates the interface', async () => {
     const { root } = await mount({ locale: 'fr' })
     expect(root.querySelector<HTMLButtonElement>('button[type="submit"]')!.textContent).toBe('Envoyer le message')
