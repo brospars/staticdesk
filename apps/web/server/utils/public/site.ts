@@ -8,7 +8,7 @@ export interface PublicSite {
   name: string
   allowedOrigins: string[]
   settings: SiteSettings
-  widgets: { id: string, kind: WidgetKind, config: unknown }[]
+  widgets: { id: string, kind: WidgetKind, name: string, config: unknown }[]
 }
 
 declare module 'h3' {
@@ -36,7 +36,7 @@ export async function findPublicSite(event: H3Event, publicKey: string): Promise
 
   const { data, error } = await serverSupabaseServiceRole(event)
     .from('sites')
-    .select('id, workspace_id, name, allowed_origins, settings, widgets(id, kind, config, enabled)')
+    .select('id, workspace_id, name, allowed_origins, settings, widgets(id, kind, name, config, enabled)')
     .eq('public_key', publicKey)
     .maybeSingle()
   if (error) throw createError({ statusCode: 500, statusMessage: 'Could not load the site' })
@@ -49,7 +49,7 @@ export async function findPublicSite(event: H3Event, publicKey: string): Promise
     settings: parseSiteSettings(data.settings),
     widgets: data.widgets
       .filter(widget => widget.enabled)
-      .map(({ id, kind, config }) => ({ id, kind, config })),
+      .map(({ id, kind, name, config }) => ({ id, kind, name, config })),
   }
 
   if (cache.size > 10_000) cache.clear()
