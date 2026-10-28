@@ -20,6 +20,7 @@ interface Metadata {
   attachments?: string[]
   source?: string
   from?: string
+  autoReply?: { id: string, name: string }
 }
 
 const metadata = computed(() => {
@@ -44,7 +45,7 @@ const otherSender = computed(() => metadata.value.from && props.contactEmail && 
   >
     <header class="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
       <UIcon
-        :name="message.direction === 'note' ? 'i-lucide-sticky-note' : message.direction === 'outbound' ? 'i-lucide-reply' : 'i-lucide-mail'"
+        :name="message.direction === 'note' ? 'i-lucide-sticky-note' : metadata.autoReply ? 'i-lucide-bot' : message.direction === 'outbound' ? 'i-lucide-reply' : 'i-lucide-mail'"
         class="text-muted"
       />
       <span class="font-medium">{{ author }}</span>
@@ -52,6 +53,13 @@ const otherSender = computed(() => metadata.value.from && props.contactEmail && 
         v-if="message.direction === 'note'"
         label="Internal note"
         color="warning"
+        variant="subtle"
+        size="sm"
+      />
+      <UBadge
+        v-if="metadata.autoReply"
+        :label="metadata.autoReply.name"
+        color="neutral"
         variant="subtle"
         size="sm"
       />

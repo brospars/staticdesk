@@ -19,7 +19,7 @@ const { data: thread, refresh: refreshThread } = await useAsyncData(
   async () => {
     const { data, error } = await supabase
       .from('threads')
-      .select('id, workspace_id, subject, status, labels, assignee_id, created_at, contacts(id, email, name, email_suppressed_at, email_suppression_reason), sites(id, name), widgets(id, name)')
+      .select('id, workspace_id, subject, status, labels, assignee_id, created_at, contacts(id, email, name, email_suppressed_at, email_suppression_reason), sites(id, name), widgets(id, name), auto_reply_deliveries(status, send_at, reason, auto_replies(name))')
       .eq('id', threadId.value)
       .maybeSingle()
     if (error) throw error
@@ -42,10 +42,23 @@ const { data: messages, refresh: refreshMessages } = await useAsyncData(
 )
 
 const contactLabel = computed(() => thread.value?.contacts?.name || thread.value?.contacts?.email || 'Visitor')
+// A delayed auto-reply still to be sent, or one that failed.
+const autoReply = computed(() => {
+  const delivery = thread.value?.auto_reply_deliveries[0]
+  if (delivery?.status === 'scheduled') {
+    const at = new Date(delivery.send_at).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })
+    return { color: 'info' as const, title: `Auto-reply “${delivery.auto_replies?.name}” scheduled for ${at}`, description: 'It is not sent if someone answers first.' }
+  }
+  if (delivery?.status === 'failed') {
+    return { color: 'warning' as const, title: `Auto-reply “${delivery.auto_replies?.name}” could not be sent`, description: delivery.reason ?? undefined }
+  }
+  return null
+})
 const canDelete = computed(() => current.value?.role === 'owner' || current.value?.role === 'admin')
 
-function authorOf(message: { direction: string, author_id: string | null }) {
+function authorOf(message: { direction: string, author_id: string | null, metadata: unknown }) {
   if (message.direction === 'inbound') return contactLabel.value
+  if (!message.author_id && isAutoReply(message.metadata)) return 'Auto-reply'
   return message.author_id === user.value?.sub ? 'You' : memberName(message.author_id)
 }
 
@@ -238,6 +251,15 @@ const variables = computed(() => ({
           title="Emails to this contact are suppressed"
           :description="thread.contacts.email_suppression_reason ?? 'The address bounced or reported spam.'"
           :actions="[{ label: 'Allow emails again', color: 'warning', variant: 'outline', onClick: liftSuppression }]"
+        />
+
+        <UAlert
+          v-if="autoReply"
+          :color="autoReply.color"
+          variant="subtle"
+          icon="i-lucide-bot"
+          :title="autoReply.title"
+          :description="autoReply.description"
         />
 
         <InboxMessage
