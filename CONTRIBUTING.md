@@ -5,14 +5,14 @@ Thanks for your interest in StaticDesk!
 ## Getting started
 
 1. Fork and clone the repository.
-2. Install dependencies with `pnpm install` (Node.js 22+, pnpm 10).
-3. Start the app with `pnpm dev`.
+2. Install dependencies with `npm install` (Node.js 22+, npm 10).
+3. Start the app with `npm run dev`.
 
 ## Before opening a pull request
 
-- Run `pnpm lint`, `pnpm typecheck`, `pnpm test` and `pnpm build`.
+- Run `npm run lint`, `npm run typecheck`, `npm test` and `npm run build`.
 - Add or update tests for the behavior you change.
-- If you change a published package (`packages/*`), add a changeset with `pnpm changeset`.
+- If you change a published package (`packages/*`), add a changeset with `npm run changeset`.
 - Use [Conventional Commits](https://www.conventionalcommits.org/) for commit messages
   (`feat:`, `fix:`, `docs:`, `chore:`…).
 

@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: Questions and discussions
-    url: https://github.com/brospars/formdesk/discussions
+    url: https://github.com/brospars/staticdesk/discussions
     about: Ask questions and share ideas
   - name: Security vulnerability
-    url: https://github.com/brospars/formdesk/security/advisories/new
+    url: https://github.com/brospars/staticdesk/security/advisories/new
     about: Report security issues privately

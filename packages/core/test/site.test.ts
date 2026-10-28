@@ -35,3 +35,19 @@ describe('buildEmbedSnippet', () => {
     expect(snippet).toContain('src="https://x.dev/w.js?a=1&amp;b=&quot;2&quot;"')
   })
 })
+
+describe('allowedOriginSchema', () => {
+  it('normalizes exact origins and keeps wildcards', async () => {
+    const { allowedOriginSchema } = await import('../src')
+    expect(allowedOriginSchema.parse(' https://Docs.Acme.dev/path ')).toBe('https://docs.acme.dev')
+    expect(allowedOriginSchema.parse('https://*.acme.dev')).toBe('https://*.acme.dev')
+    expect(allowedOriginSchema.parse('http://*.acme.dev:8080')).toBe('http://*.acme.dev:8080')
+  })
+
+  it('rejects invalid entries', async () => {
+    const { allowedOriginSchema } = await import('../src')
+    for (const value of ['acme.dev', 'https://*', 'https://*.dev', 'ftp://acme.dev', 'https://a.*.acme.dev']) {
+      expect(allowedOriginSchema.safeParse(value).success).toBe(false)
+    }
+  })
+})

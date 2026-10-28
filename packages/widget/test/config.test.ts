@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { readConfig } from '../src'
+import { readConfig } from '../src/config'
 
 function scriptTag(attrs: Record<string, string>) {
   const script = document.createElement('script')
@@ -16,7 +16,7 @@ describe('readConfig', () => {
 
   it('derives the API base from the script origin', () => {
     const script = scriptTag({ 'src': 'https://staticdesk.app/widget.js', 'data-site': 'pk_123' })
-    expect(readConfig(script)).toEqual({ siteKey: 'pk_123', apiBase: 'https://staticdesk.app' })
+    expect(readConfig(script)).toEqual({ siteKey: 'pk_123', apiBase: 'https://staticdesk.app', locale: null })
   })
 
   it('prefers an explicit data-api-base', () => {
@@ -24,7 +24,8 @@ describe('readConfig', () => {
       'src': 'https://cdn.example.com/widget.js',
       'data-site': 'pk_123',
       'data-api-base': 'https://desk.example.com/',
+      'data-locale': 'fr',
     })
-    expect(readConfig(script)).toEqual({ siteKey: 'pk_123', apiBase: 'https://desk.example.com' })
+    expect(readConfig(script)).toEqual({ siteKey: 'pk_123', apiBase: 'https://desk.example.com', locale: 'fr' })
   })
 })

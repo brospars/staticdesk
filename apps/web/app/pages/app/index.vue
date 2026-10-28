@@ -30,10 +30,10 @@ async function signOut() {
     </p>
     <div class="mt-6 flex gap-3">
       <UButton
-        to="/app/onboarding"
-        icon="i-lucide-plus"
+        to="/app/sites"
+        icon="i-lucide-globe"
       >
-        Add a site
+        Sites
       </UButton>
       <UButton
         to="/app/settings/members"

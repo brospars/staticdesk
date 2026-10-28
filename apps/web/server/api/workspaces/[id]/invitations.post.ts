@@ -3,7 +3,7 @@ import { serverSupabaseClient } from '#supabase/server'
 
 import { invitationEmail } from '../../../emails/invitation'
 
-const paramsSchema = z.object({ id: z.uuid() })
+const paramsSchema = z.object({ id: z.guid() })
 const bodySchema = z.object({
   email: z.email().trim().toLowerCase().max(320),
   role: z.enum(['admin', 'member']).default('member'),
