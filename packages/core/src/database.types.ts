@@ -189,6 +189,20 @@ isOneToOne: false
       referencedColumns: ["id","workspace_id"]
     }
                   ]
+                },"rate_limits": {
+                  Row: {
+                    "hits": number,"key": string,"window_start": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "hits"?: number,"key": string,"window_start": string
+                  }
+                  Update: {
+                    "hits"?: number,"key"?: string,"window_start"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"reactions": {
                   Row: {
                     "comment": string | null,"created_at": string,"fingerprint_hash": string,"id": string,"kind": string,"page_id": string,"site_id": string,"workspace_id": string
@@ -363,6 +377,12 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"hit_rate_limit":
+{ Args: { "bucket": string,"max_hits": number,"window_seconds": number }; Returns: boolean
+                           },
+"submit_contact":
+{ Args: { "email": string,"message": string,"name": string,"page_id": string,"page_url": string,"site_id": string,"widget_id": string }; Returns: string
+                           },
 "workspace_members":
 { Args: { "ws": string }; Returns: {
               "email": string,"joined_at": string,"role": Database["public"]['Enums']["member_role"],"user_id": string
