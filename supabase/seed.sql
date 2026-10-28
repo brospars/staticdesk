@@ -127,3 +127,8 @@ select
   '/getting-started',
   now() - (n * interval '3 hours')
 from generate_series(1, 200) as n;
+
+insert into public.saved_replies (workspace_id, title, body, created_by) values
+  ('22222222-2222-2222-2222-222222222222', 'Thanks for the report',
+   E'Hi {{name|there}},\n\nThanks for letting us know! We fixed it and the change is live on {{site}}.\n\n{{agent}}',
+   '11111111-1111-1111-1111-111111111111');

@@ -10,6 +10,8 @@ import {
   type ContactWidgetFormInput,
 } from '@staticdesk/core'
 
+definePageMeta({ layout: 'dashboard' })
+
 useSeoMeta({ title: 'Contact form · StaticDesk', robots: 'noindex' })
 
 const route = useRoute()
@@ -165,7 +167,7 @@ const htmlSnippet = computed(() => {
 <template>
   <UContainer
     v-if="widget"
-    class="space-y-8 py-12"
+    class="space-y-8 py-8"
   >
     <div>
       <UButton

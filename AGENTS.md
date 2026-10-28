@@ -59,16 +59,28 @@ Nuxt 3 / Nuxt UI 2-3 / Tailwind 3 / Zod 3 examples.
 - Env vars: `apps/web/.env.example` (runtime config keys in `apps/web/nuxt.config.ts`).
 - Migrations: `supabase/migrations`; seed (dev user `dev@staticdesk.local` / `password`,
   site key `pk_demo000000000000000000`): `supabase/seed.sql`.
-- Dashboard pages: `apps/web/app/pages/app/*` (onboarding, sites, widgets/[id] for the
-  contact form editor, settings/members); current workspace via `useWorkspaces()`.
+- Dashboard pages: `apps/web/app/pages/app/*` (inbox, onboarding, sites, widgets/[id] for the
+  contact form editor, settings/*); current workspace via `useWorkspaces()`. They use the
+  `dashboard` layout (sidebar); pages that lay out their own `UDashboardPanel`s set
+  `panels: true` in `definePageMeta` (see `pages/app/inbox.vue`).
+- Shared inbox: `pages/app/inbox.vue` (list, filters through `search_threads()`) and
+  `inbox/[id].vue` (conversation; `components/inbox/*`). Notes are inserted by the client;
+  replies go through `server/api/threads/[id]/reply.post.ts`, which emails the visitor with a
+  signed Reply-To (`server/utils/inbox/addresses.ts`). Visitor replies, bounces and complaints
+  arrive at `server/api/inbound/resend.post.ts`. Members are notified per
+  `notification_preferences` (`workspace_notification_emails(ws, kind, thread)`).
+- Realtime: the dashboard subscribes to `threads` and `messages` changes (RLS applies) and uses
+  presence on the private channel `inbox:<workspace id>` (`useInboxPresence()`).
 - Contact submissions: `submitContactMessage()` in `apps/web/server/utils/contact/submit.ts`,
   shared by the widget API and the plain HTML form endpoint (`server/routes/f/[id].post.ts`).
   It sends the team email and webhooks (`server/utils/webhooks.ts`) after the response
   with `event.waitUntil()`.
 - Contact form configuration (`widgets.config`): `contactWidgetConfigSchema` in
   `packages/core/src/schemas/widget-config.ts`; custom fields in `schemas/contact-form.ts`.
-- Email: `useMailer()` in `apps/web/server/utils/mailer.ts` (`log` or `resend` driver);
-  templates in `apps/web/server/emails`.
+- Email: `useMailer()` in `apps/web/server/utils/mailer.ts` (`log` or `resend` driver;
+  `useResend()` for other Resend APIs); templates in `apps/web/server/emails`.
+- Scheduled jobs: `server/api/cron/*`, declared as Vercel Crons in `nuxt.config.ts`
+  (`nitro.vercel.config.crons`) and protected by a bearer `CRON_SECRET`.
 - Widget elements: `packages/widget/src/elements/*` (extend `StaticDeskElement`).
 - Release: Changesets + `.github/workflows/release.yml` (needs the `NPM_TOKEN` secret).
 
@@ -85,6 +97,8 @@ Nuxt 3 / Nuxt UI 2-3 / Tailwind 3 / Zod 3 examples.
   `permissions: ['local-network-access']` (see `apps/web/test/e2e/widget.spec.ts`).
 - Server unit tests (`apps/web/test/unit`) run without Nuxt: `#supabase/server` is
   aliased to a stub, and Nitro auto-imports are only available inside functions.
+- PostgREST upserts update every column of the payload: with column-level update grants,
+  update or insert explicitly instead (see `pages/app/settings/notifications.vue`).
 - Sandboxed environments may not pull every Supabase Docker image. The Postgres image
   alone (`public.ecr.aws/supabase/postgres`) runs migrations and pgTAP tests: apply
   `supabase/migrations/*.sql` then each file in `supabase/tests/database` with `psql`.

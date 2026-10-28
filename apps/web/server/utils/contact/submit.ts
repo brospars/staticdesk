@@ -125,17 +125,17 @@ export async function submitContactMessage(event: H3Event, site: PublicSite, inp
   return { status: 'stored', threadId, form }
 }
 
-/** Emails every workspace member about a new message. */
+/** Emails the workspace members who follow new conversations about a new message. */
 async function notifyTeam(event: H3Event, site: PublicSite, payload: ContactSubmittedPayload) {
   const { data: recipients, error } = await serverSupabaseServiceRole(event)
-    .rpc('workspace_notification_emails', { ws: site.workspaceId })
+    .rpc('workspace_notification_emails', { ws: site.workspaceId, kind: 'new_thread' })
   if (error) {
     console.error('[contact] could not list the members to notify', error.message)
     return
   }
 
   const mailer = useMailer()
-  const dashboardUrl = `${appUrl(event)}/app`
+  const dashboardUrl = threadUrl(event, payload.threadId)
   const results = await Promise.allSettled(recipients.map(to => mailer.send(newMessageEmail({
     to,
     siteName: site.name,
