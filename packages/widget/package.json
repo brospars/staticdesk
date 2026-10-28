@@ -2,7 +2,7 @@
   "name": "@staticdesk/widget",
   "version": "0.0.0",
   "description": "Embeddable contact forms, comments and reactions for static sites (StaticDesk)",
-  "license": "AGPL-3.0-only",
+  "license": "MIT",
   "homepage": "https://staticdesk.app",
   "repository": {
     "type": "git",

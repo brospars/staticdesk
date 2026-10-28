@@ -2,7 +2,7 @@
   "name": "@staticdesk/docusaurus-plugin",
   "version": "0.0.0",
   "description": "Docusaurus plugin for StaticDesk: contact form and floating button on your docs",
-  "license": "AGPL-3.0-only",
+  "license": "MIT",
   "homepage": "https://staticdesk.app",
   "repository": {
     "type": "git",

@@ -25,7 +25,8 @@ export interface PublicWidget {
 
 // Database ids: Postgres accepts any 8-4-4-4-12 hex value, not only RFC 4122
 // UUIDs, so z.guid() rather than z.uuid().
-const pageFields = {
+/** Page a widget request is about. */
+export const pageFields = {
   pageId: z.string().trim().min(1).max(500),
   pageUrl: z.url().max(2000).optional(),
 }

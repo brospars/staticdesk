@@ -123,14 +123,14 @@ isOneToOne: false
                   ]
                 },"comments": {
                   Row: {
-                    "author_email": string | null,"author_name": string | null,"body": string,"created_at": string,"edit_token_hash": string | null,"edited_at": string | null,"fingerprint_hash": string | null,"id": string,"is_anonymous": boolean,"page_id": string,"page_url": string | null,"parent_id": string | null,"site_id": string,"status": Database["public"]['Enums']["moderation_status"],"updated_at": string,"widget_id": string | null,"workspace_id": string
+                    "author_email": string | null,"author_name": string | null,"body": string,"created_at": string,"deleted_at": string | null,"edit_token_hash": string | null,"edited_at": string | null,"fingerprint_hash": string | null,"id": string,"is_anonymous": boolean,"page_id": string,"page_url": string | null,"parent_id": string | null,"site_id": string,"status": Database["public"]['Enums']["moderation_status"],"updated_at": string,"widget_id": string | null,"workspace_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "author_email"?: string | null,"author_name"?: string | null,"body": string,"created_at"?: string,"edit_token_hash"?: string | null,"edited_at"?: string | null,"fingerprint_hash"?: string | null,"id"?: string,"is_anonymous"?: boolean,"page_id": string,"page_url"?: string | null,"parent_id"?: string | null,"site_id": string,"status"?: Database["public"]['Enums']["moderation_status"],"updated_at"?: string,"widget_id"?: string | null,"workspace_id": string
+                    "author_email"?: string | null,"author_name"?: string | null,"body": string,"created_at"?: string,"deleted_at"?: string | null,"edit_token_hash"?: string | null,"edited_at"?: string | null,"fingerprint_hash"?: string | null,"id"?: string,"is_anonymous"?: boolean,"page_id": string,"page_url"?: string | null,"parent_id"?: string | null,"site_id": string,"status"?: Database["public"]['Enums']["moderation_status"],"updated_at"?: string,"widget_id"?: string | null,"workspace_id": string
                   }
                   Update: {
-                    "author_email"?: string | null,"author_name"?: string | null,"body"?: string,"created_at"?: string,"edit_token_hash"?: string | null,"edited_at"?: string | null,"fingerprint_hash"?: string | null,"id"?: string,"is_anonymous"?: boolean,"page_id"?: string,"page_url"?: string | null,"parent_id"?: string | null,"site_id"?: string,"status"?: Database["public"]['Enums']["moderation_status"],"updated_at"?: string,"widget_id"?: string | null,"workspace_id"?: string
+                    "author_email"?: string | null,"author_name"?: string | null,"body"?: string,"created_at"?: string,"deleted_at"?: string | null,"edit_token_hash"?: string | null,"edited_at"?: string | null,"fingerprint_hash"?: string | null,"id"?: string,"is_anonymous"?: boolean,"page_id"?: string,"page_url"?: string | null,"parent_id"?: string | null,"site_id"?: string,"status"?: Database["public"]['Enums']["moderation_status"],"updated_at"?: string,"widget_id"?: string | null,"workspace_id"?: string
                   }
                   Relationships: [
                     {
@@ -555,6 +555,14 @@ isOneToOne: false
       } },
 "hit_rate_limit":
 { Args: { "bucket": string,"max_hits": number,"window_seconds": number }; Returns: boolean
+                           },
+"page_feedback":
+{ Args: { "since"?: string,"site"?: string,"ws": string }; Returns: {
+              "comments": number,"emojis": Json,"helpful": number,"last_at": string,"page_id": string,"site_id": string,"unhelpful": number
+            }[]
+                           },
+"reaction_counts":
+{ Args: { "page": string,"site": string }; Returns: Json
                            },
 "receive_email_reply":
 { Args: { "body": string,"email_message_id": string,"from_email"?: string,"metadata"?: Json,"thread_id": string }; Returns: string

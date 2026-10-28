@@ -1,9 +1,24 @@
-import { parseContactWidgetConfig, publicAttachmentLimits, type PublicSiteConfig } from '@staticdesk/core'
+import {
+  parseCommentsWidgetConfig,
+  parseContactWidgetConfig,
+  parseReactionsWidgetConfig,
+  publicAttachmentLimits,
+  type PublicSiteConfig,
+  type WidgetKind,
+} from '@staticdesk/core'
 
-// Notification settings stay private.
-function publicContactConfig(value: unknown) {
-  const { notifyTeam: _, ...config } = parseContactWidgetConfig(value)
-  return config
+// Notification and moderation settings stay private.
+function publicWidgetConfig(kind: WidgetKind, value: unknown): Record<string, unknown> {
+  if (kind === 'contact') {
+    const { notifyTeam: _, ...config } = parseContactWidgetConfig(value)
+    return config
+  }
+  if (kind === 'comments') {
+    const { title, allowAnonymous, sort } = parseCommentsWidgetConfig(value)
+    return { title, allowAnonymous, sort }
+  }
+  if (kind === 'reactions') return parseReactionsWidgetConfig(value)
+  return {}
 }
 
 // Configuration the widget needs to render: language, theme and enabled widgets.
@@ -23,7 +38,7 @@ export default defineEventHandler((event): PublicSiteConfig => {
     widgets: site.widgets.map(widget => ({
       id: widget.id,
       kind: widget.kind,
-      config: widget.kind === 'contact' ? publicContactConfig(widget.config) : {},
+      config: publicWidgetConfig(widget.kind, widget.config),
     })),
   }
 })

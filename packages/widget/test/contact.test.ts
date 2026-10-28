@@ -1,9 +1,10 @@
 import type { PublicSiteConfig } from '@staticdesk/core'
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { ApiError, type Api } from '../src/api'
+import { ApiError } from '../src/api'
 import { StaticDeskContact } from '../src/elements/contact'
 import { setRuntime } from '../src/runtime'
+import { mockApi } from './helpers'
 
 const site: PublicSiteConfig = {
   site: { name: 'Docs' },
@@ -18,12 +19,7 @@ const site: PublicSiteConfig = {
   }],
 }
 
-const api = {
-  config: vi.fn<Api['config']>(),
-  track: vi.fn<Api['track']>(),
-  submitContact: vi.fn<Api['submitContact']>(),
-  uploadAttachment: vi.fn<Api['uploadAttachment']>(),
-}
+const api = mockApi()
 
 beforeAll(() => {
   customElements.define('staticdesk-contact', StaticDeskContact)

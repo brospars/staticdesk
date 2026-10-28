@@ -12,12 +12,12 @@ Legend: 🧑 = manual action (account, configuration, decision) · 💻 = develo
 
 ## Status (2026-10-28)
 
-- Done: phases 2 to 6 (except the comments, reactions and reviews elements, planned in phase 7, and AI suggestions), and the development part of the MVP (phase 10): contact form attachments, the Docusaurus plugin and self-hosting with Docker Compose. **Next:** the manual MVP steps (accounts, dogfooding, beta testers), then v0.2: comments and reactions (phase 7).
+- Done: phases 2 to 6 (except reviews and AI suggestions), the development part of the MVP (phase 10), and most of v0.2: the comments and reactions widgets with their moderation queue and feedback page (phase 7). **Next:** the manual MVP steps (accounts, dogfooding, beta testers), then the rest of v0.2: commenter notifications, GitHub sign-in for commenters, and the MkDocs, VitePress and Astro plugins.
 - Verified end to end on the Docker Compose stack (Supabase Auth, PostgREST, Realtime and Storage, SMTP through Mailpit): magic-link sign-in, onboarding, invitations, the widget editor, the widget and plain HTML form submissions with attachments, team notifications, the inbox (list, Realtime updates, attachment download, reply by email), the auto-reply acknowledgement and the `/api/cron/*` jobs. The Docusaurus plugin was checked in a real Docusaurus 3.10 build.
 - Still untested against real services: Resend (inbound replies, bounces, sending domains), GitHub and Google sign-in, Turnstile, webhooks to Slack and Discord, Vercel deployment and crons.
 - `packages/core/src/database.types.ts` is generated (`npm run db:types`, checked by CI): the pgTAP suites and the type generation ran with the Supabase CLI against its local Postgres.
 - GitHub Actions (CI, release) have not run yet: check the first run, in particular the database job and the generated types check.
-- Open decision: license (AGPL-3.0 applied everywhere, MIT considered for the widget and plugins).
+- License: AGPL-3.0 for the server, MIT for the widget and the framework plugins.
 
 ---
 
@@ -41,7 +41,7 @@ Legend: 🧑 = manual action (account, configuration, decision) · 💻 = develo
 - [ ] 🧑 Register the trademark (optional at first, do it before the public launch)
 
 ### Product and technical decisions
-- [ ] 🧑 License: **AGPL-3.0** (recommended for an open-core SaaS: it prevents a competitor from reselling the service without publishing their changes) or MIT/Apache-2.0 (wider adoption, less protection). AGPL-3.0 is currently applied by default; MIT could suit the widget and plugins
+- [x] 🧑 License: **AGPL-3.0** for the app and the server (prevents a competitor from reselling the service without publishing their changes), **MIT** for the code embedded in sites (`@staticdesk/widget`, `packages/integrations/*`)
 - [ ] 🧑 Open source model: all code in the public repository, SaaS features (billing, quotas) enabled by environment variables, no closed `ee/` folder
 - [ ] 🧑 Self-hosting strategy: self-hosted Supabase (official Docker setup) **or** Postgres + simple auth. Recommendation: support self-hosted Supabase in v1, without tight coupling (database access through a repository layer)
 - [ ] 🧑 Email when self-hosted: Resend **or** generic SMTP (shared adapter)
@@ -154,7 +154,8 @@ Legend: 🧑 = manual action (account, configuration, decision) · 💻 = develo
 - [x] 💻 Single `widget.js` loader: `<script src=".../widget.js" data-site="pk_xxx" defer></script>` (served by the app, 5.8 kB gzip)
 - [ ] 💻 Web Components, plus a floating button mode:
   - [x] 💻 `<staticdesk-contact>` (inline and floating)
-  - [ ] 💻 `<staticdesk-comments>`, `<staticdesk-reactions>`, `<staticdesk-reviews>` (phase 7)
+  - [x] 💻 `<staticdesk-comments>`, `<staticdesk-reactions>` (phase 7)
+  - [ ] 💻 `<staticdesk-reviews>` (phase 7)
 - [x] 💻 Shadow DOM isolation, theming with CSS variables, automatic dark mode (`prefers-color-scheme`), customizable colors, font and copy
 - [x] 💻 Widget i18n (English and French to start, `navigator.language` detection, overridable)
 - [x] 💻 Accessibility: focus trap, ARIA, keyboard navigation, contrast (WCAG AA)
@@ -217,24 +218,28 @@ Legend: 🧑 = manual action (account, configuration, decision) · 💻 = develo
 ## Phase 7: comments, likes and reviews
 
 ### Comments
-- [ ] 💻 One thread per page, nested replies (2 levels), sorting, pagination
+- [x] 💻 One thread per page, nested replies (2 levels), sorting (per widget), pagination (`/api/v1/public/sites/:key/comments`)
 - [ ] 💻 Identity: guest (nickname + optional email), GitHub OAuth, or email magic link
-- [ ] 💻 **Fully anonymous posting** (comments and likes): no name or email required, auto-generated nickname ("Visitor #a1b2") or optional
-  - [ ] 💻 Per-site settings: allow anonymous posting or not, force pre-moderation for anonymous posts, require Turnstile for anonymous posts
-  - [ ] 💻 Secret author token stored in `localStorage` to edit or delete one's own anonymous post (limited window)
-  - [ ] 💻 Stronger anti-abuse: stricter rate limiting, link and spam detection, blocking by fingerprint (salted IP hash) from the dashboard
-  - [ ] 💻 "Anonymous" badge in the UI and in the moderation queue, without exposing IPs or fingerprints to other visitors
-- [ ] 💻 Safe Markdown rendering (sanitization), preview
-- [ ] 💻 Moderation: pre- or post-moderation, banned words list, moderation queue in the dashboard, reporting
+  - [x] 💻 Guest nickname
+  - [ ] 💻 Optional email (for reply notifications), GitHub OAuth, email magic link
+- [x] 💻 **Fully anonymous posting** (comments and likes): no name or email required, auto-generated nickname ("Visitor #a1b2") or optional
+  - [x] 💻 Per-widget settings: allow anonymous posting or not, pre-moderation for anonymous posts (or for all); Turnstile applies when the site requires it
+  - [x] 💻 Secret author token stored in `localStorage` to edit (15 minutes) or delete one's own post
+  - [ ] 💻 Stronger anti-abuse: stricter rate limiting for anonymous posts ✅, comments with more than 2 links held for approval ✅, blocking from the dashboard (fingerprints rotate daily, so this needs a design: e.g. a longer-lived hash kept only for blocked visitors)
+  - [x] 💻 "Anonymous" badge in the UI and in the moderation queue, without exposing IPs or fingerprints to other visitors
+- [x] 💻 Safe Markdown rendering (subset rendered as DOM nodes, never as HTML, `nofollow ugc` links), preview
+- [ ] 💻 Moderation: pre- or post-moderation, banned words list, moderation queue in the dashboard (Comments, with a pending counter), reporting
+  - [x] 💻 Pre- or post-moderation, banned words, moderation queue
+  - [ ] 💻 Reporting by visitors
 - [ ] 💻 Reply notifications to commenters by email, with unsubscribe
 - [ ] 💻 Import from Disqus (XML) and Giscus/Utterances (GitHub Discussions) to ease migration
 - [ ] 💻 Optional SEO-friendly rendering: static HTML or JSON endpoint to include at build time (plugins)
 
 ### Reactions and likes
-- [ ] 💻 "Was this page helpful? 👍 / 👎" with an optional comment (documentation feedback)
-- [ ] 💻 Emoji reactions per page, public counter
-- [ ] 💻 Cookie-free deduplication (salted, rotating hash of IP + UA + page)
-- [ ] 💻 Anonymous likes by default (no account required), can be removed by the same visitor
+- [x] 💻 "Was this page helpful? 👍 / 👎" with an optional comment (documentation feedback), results per page in the dashboard (Feedback)
+- [x] 💻 Emoji reactions per page (up to 8 per widget), public counter
+- [x] 💻 Cookie-free deduplication (daily, per-site hash of IP + UA, one reaction per kind and page)
+- [x] 💻 Anonymous likes by default (no account required), can be removed by the same visitor (signed token in `localStorage`)
 
 ### Reviews
 - [ ] 💻 1 to 5 rating with text, moderated before publication
@@ -248,6 +253,7 @@ Legend: 🧑 = manual action (account, configuration, decision) · 💻 = develo
 - [ ] 💻 Lightweight collection from the widget: views, opens, submissions, conversion rate
 - [ ] 💻 Dashboard: messages per day, time to first reply, time to resolution, volume per site and per form
 - [ ] 💻 Most commented and liked pages, "helpful / not helpful" score per docs page
+  - [x] 💻 "Helpful" score, votes, emoji totals and comments per page, by site and period (Feedback, `page_feedback()`)
 - [ ] 💻 CSV export, configurable retention
 - [ ] 💻 Daily aggregates (materialized view or a Vercel Cron job)
 
@@ -256,7 +262,7 @@ Legend: 🧑 = manual action (account, configuration, decision) · 💻 = develo
 ## Phase 9: framework integrations
 
 - [x] 💻 Universal HTML snippet (copy-paste), enough for GitHub Pages, GitLab Pages, Netlify and Cloudflare Pages
-- [x] 💻 **Docusaurus**: `@staticdesk/docusaurus-plugin` (floating button, color mode sync, `@theme/StaticDeskContact` for MDX; the docs footer can be wrapped with it, "helpful?" comes with phase 7 reactions)
+- [x] 💻 **Docusaurus**: `@staticdesk/docusaurus-plugin` (floating button, color mode sync, `@theme/StaticDeskContact`, `@theme/StaticDeskReactions` and `@theme/StaticDeskComments` for MDX and the wrapped doc footer)
 - [ ] 💻 **MkDocs / Material for MkDocs**: `mkdocs-staticdesk` PyPI package (template override)
 - [ ] 💻 **VitePress**: component or theme plugin
 - [ ] 💻 **Astro / Starlight**: `@staticdesk/astro` integration
@@ -285,7 +291,7 @@ Legend: 🧑 = manual action (account, configuration, decision) · 💻 = develo
 - [ ] 🧑 Recruit 10 to 20 beta testers (open source maintainers, technical writers)
 
 ## v0.2: comments and reactions
-- [ ] 💻 Phase 7 (comments, likes, docs feedback)
+- [ ] 💻 Phase 7 (comments, likes, docs feedback): widgets, moderation and feedback done; notifications, sign-in for commenters and imports remaining
 - [ ] 💻 MkDocs, VitePress and Astro/Starlight plugins
 
 ## v0.3: monetization

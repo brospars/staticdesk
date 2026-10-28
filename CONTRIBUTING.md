@@ -23,4 +23,6 @@ Open an issue using the matching template. For questions, use GitHub Discussions
 ## License
 
 By contributing, you agree that your contributions are licensed under the
-[AGPL-3.0](LICENSE).
+[AGPL-3.0](LICENSE), except for contributions to `packages/widget` and
+`packages/integrations/*`, which are licensed under the MIT license (see the
+`LICENSE` file of each package).

@@ -14,6 +14,10 @@ Open source and free to self-host, or use the hosted SaaS.
 ```html
 <script src="https://staticdesk.app/widget.js" data-site="pk_your_site_key" defer></script>
 <staticdesk-contact mode="floating"></staticdesk-contact>
+
+<!-- Under a page: -->
+<staticdesk-reactions></staticdesk-reactions>
+<staticdesk-comments></staticdesk-comments>
 ```
 
 See [packages/widget](packages/widget/README.md) for attributes and styling.
@@ -108,4 +112,11 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Security issues: see [SECURITY.md](SECUR
 
 ## License
 
-[AGPL-3.0](LICENSE)
+StaticDesk is licensed under the [AGPL-3.0](LICENSE): if you run a modified version as a
+service, you must publish your changes.
+
+The code that runs on your site is licensed under the [MIT license](packages/widget/LICENSE), so
+you can embed and bundle it anywhere:
+
+- `packages/widget` (`@staticdesk/widget`)
+- `packages/integrations/*` (framework plugins such as `@staticdesk/docusaurus-plugin`)

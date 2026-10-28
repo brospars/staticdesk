@@ -13,8 +13,6 @@ import {
 
 definePageMeta({ layout: 'dashboard' })
 
-useSeoMeta({ title: 'Contact form · StaticDesk', robots: 'noindex' })
-
 const route = useRoute()
 const supabase = useSupabaseClient()
 const toast = useToast()
@@ -23,6 +21,7 @@ const { current } = useWorkspaces()
 const { copy } = useClipboard()
 
 const widgetId = String(route.params.id)
+const KIND_LABELS: Record<string, string> = { contact: 'Contact form', comments: 'Comments', reactions: 'Reactions' }
 const canManage = computed(() => current.value?.role === 'owner' || current.value?.role === 'admin')
 
 const { data: widget, refresh } = await useAsyncData(`widget-${widgetId}`, async () => {
@@ -32,9 +31,11 @@ const { data: widget, refresh } = await useAsyncData(`widget-${widgetId}`, async
     .eq('id', widgetId)
     .maybeSingle()
   if (error) throw error
-  if (!data || data.kind !== 'contact') throw createError({ statusCode: 404, statusMessage: 'Contact form not found', fatal: true })
+  if (!data || !(data.kind in KIND_LABELS)) throw createError({ statusCode: 404, statusMessage: 'Widget not found', fatal: true })
   return data
 })
+
+useSeoMeta({ title: () => `${widget.value?.name ?? 'Widget'} · StaticDesk`, robots: 'noindex' })
 
 // Options of select fields are edited as one option per line.
 interface FieldRow {
@@ -155,7 +156,7 @@ async function save(event: FormSubmitEvent<ContactWidgetForm>) {
 }
 
 const widgetSnippet = computed(() => widget.value?.sites
-  ? buildEmbedSnippet({ scriptUrl: `${appUrl.value}/widget.js`, siteKey: widget.value.sites.public_key, kind: 'contact' })
+  ? buildEmbedSnippet({ scriptUrl: `${appUrl.value}/widget.js`, siteKey: widget.value.sites.public_key, kind: widget.value.kind })
   : '')
 const htmlSnippet = computed(() => {
   const config = contactWidgetFormSchema.safeParse(formState.value)
@@ -187,11 +188,45 @@ const htmlSnippet = computed(() => {
         {{ widget.name }}
       </h1>
       <p class="text-sm text-muted">
-        Contact form
+        {{ KIND_LABELS[widget.kind] }}
       </p>
     </div>
 
+    <template v-if="widget.kind !== 'contact'">
+      <WidgetCommentsSettings
+        v-if="widget.kind === 'comments'"
+        :widget="widget"
+        :disabled="!canManage"
+        @saved="refresh"
+      />
+      <WidgetReactionsSettings
+        v-else
+        :widget="widget"
+        :disabled="!canManage"
+        @saved="refresh"
+      />
+
+      <UPageCard
+        title="Install"
+        description="Paste the snippet where the widget should appear. It follows the page's canonical URL; add page-id=&quot;…&quot; to the element to choose the page identifier yourself."
+      >
+        <div class="relative">
+          <pre class="overflow-x-auto rounded-md bg-elevated p-3 pr-12 text-xs"><code>{{ widgetSnippet }}</code></pre>
+          <UButton
+            class="absolute top-1.5 right-1.5"
+            color="neutral"
+            variant="ghost"
+            size="sm"
+            icon="i-lucide-copy"
+            aria-label="Copy the widget snippet"
+            @click="copy(widgetSnippet)"
+          />
+        </div>
+      </UPageCard>
+    </template>
+
     <UForm
+      v-else
       :schema="contactWidgetFormSchema"
       :state="formState"
       :disabled="!canManage"
@@ -461,6 +496,7 @@ const htmlSnippet = computed(() => {
     </UForm>
 
     <UPageCard
+      v-if="widget?.kind === 'contact'"
       title="Install"
       description="Use the widget, or a plain HTML form that works without JavaScript."
     >

@@ -1,7 +1,7 @@
 # StaticDesk: notes for coding agents
 
 Embeddable forms, comments, likes and reviews for static sites, with a shared
-inbox. Open source (AGPL-3.0), self-hostable, and offered as a SaaS.
+inbox. Open source, self-hostable, and offered as a SaaS.
 Product plan: `ROADMAP.md`. Write all code, docs, comments and commit messages in English.
 
 ## Stack
@@ -21,6 +21,8 @@ Nuxt 3 / Nuxt UI 2-3 / Tailwind 3 / Zod 3 examples.
 - `packages/core`: Zod schemas and types shared by the API and the widget
 - `packages/widget`: browser SDK, built as an IIFE `widget.js` (15 kB gzip budget)
 - `packages/integrations/docusaurus`: `@staticdesk/docusaurus-plugin` (no runtime dependencies, compiled with tsc to `lib/`)
+- Licenses: AGPL-3.0 everywhere, except `packages/widget` and `packages/integrations/*` (MIT,
+  own `LICENSE` file). These MIT packages must not bundle code from the AGPL packages: type-only imports.
 - `docker/`: self-hosting with Docker Compose (`Dockerfile` at the root); guide in `docs/self-hosting.md`
 
 ## Commands (from the repo root)
@@ -60,8 +62,8 @@ Nuxt 3 / Nuxt UI 2-3 / Tailwind 3 / Zod 3 examples.
 - Env vars: `apps/web/.env.example` (runtime config keys in `apps/web/nuxt.config.ts`).
 - Migrations: `supabase/migrations`; seed (dev user `dev@staticdesk.local` / `password`,
   site key `pk_demo000000000000000000`): `supabase/seed.sql`.
-- Dashboard pages: `apps/web/app/pages/app/*` (inbox, onboarding, sites, widgets/[id] for the
-  contact form editor, settings/*); current workspace via `useWorkspaces()`. They use the
+- Dashboard pages: `apps/web/app/pages/app/*` (inbox, comments, feedback, onboarding, sites, widgets/[id] for the
+  widget settings, settings/*); current workspace via `useWorkspaces()`. They use the
   `dashboard` layout (sidebar); pages that lay out their own `UDashboardPanel`s set
   `panels: true` in `definePageMeta` (see `pages/app/inbox.vue`).
 - Shared inbox: `pages/app/inbox.vue` (list, filters through `search_threads()`) and
@@ -82,6 +84,12 @@ Nuxt 3 / Nuxt UI 2-3 / Tailwind 3 / Zod 3 examples.
   contact submission: labels, assigns, and queues one `auto_reply_deliveries` row per thread, sent right away or by
   `server/api/cron/automation.get.ts` (claimed with `claim_auto_reply_deliveries()`), which also sends follow-up reminders
   (`claim_follow_up_reminders()`). Auto-replies are outbound messages without an author, flagged with `metadata.autoReply`.
+- Comments and reactions: public routes `comments*.ts` and `reactions*.ts` under `server/api/v1/public/sites/[key]`,
+  helpers in `server/utils/community/*`, schemas in `packages/core/src/schemas/community.ts` (moderation rules:
+  `commentNeedsApproval()`), widget configs in `schemas/widget-config.ts`. Visitors edit or remove what they posted with a
+  secret kept in `localStorage`: comments store its hash (`edit_token_hash`), reaction tokens are HMACs of the id
+  (`visitorToken()`). Dashboard: `pages/app/comments.vue` (moderation queue), `pages/app/feedback.vue` (`page_feedback()`),
+  widget settings in `components/widget/*`.
 - Markdown in emails: `renderMarkdown()` in `packages/core/src/utils/markdown.ts` (escapes everything; variables
   are inserted as text through its `variable` option, never parsed).
 - Contact form configuration (`widgets.config`): `contactWidgetConfigSchema` in
