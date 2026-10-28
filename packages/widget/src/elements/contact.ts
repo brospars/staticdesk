@@ -1,4 +1,4 @@
-import type { ContactWidgetConfig, PublicWidget } from '@staticdesk/core'
+import type { ContactField, ContactWidgetConfig, PublicWidget } from '@staticdesk/core'
 
 import { ApiError } from '../api'
 import { h, uid } from '../dom'
@@ -29,6 +29,8 @@ const styles = `
 }
 .sd-honeypot { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
 .sd-submit { width: 100%; }
+.sd-check { display: flex; gap: 10px; align-items: start; margin: 0 0 14px; }
+.sd-check input { width: 18px; height: 18px; margin: 2px 0 0; flex: none; accent-color: var(--sd-primary); }
 .sd-success { text-align: center; padding: 8px 0; }
 .sd-success p { color: var(--sd-muted); }
 @media (max-width: 480px) {
@@ -83,9 +85,12 @@ export class StaticDeskContact extends StaticDeskElement {
 
     this.status = h('p', { 'class': 'sd-status', 'role': 'alert', 'aria-live': 'assertive' })
     this.submit = h('button', { class: 'sd-button sd-submit', type: 'submit' }, t('contact.submit'))
+    const nameRequired = config.nameField === 'required'
     this.form = h('form', { novalidate: false },
-      field(t('contact.name'), h('input', { class: 'sd-input', name: 'name', autocomplete: 'name', maxlength: '120' }), true),
+      config.nameField !== 'hidden' && field(t('contact.name'),
+        h('input', { class: 'sd-input', name: 'name', autocomplete: 'name', maxlength: '120', required: nameRequired }), !nameRequired),
       field(t('contact.email'), h('input', { class: 'sd-input', name: 'email', type: 'email', autocomplete: 'email', required: true, maxlength: '320' })),
+      ...(config.fields ?? []).map(custom => this.customField(custom, field)),
       field(t('contact.message'), h('textarea', { class: 'sd-input', name: 'message', required: true, maxlength: '5000' })),
       // Honeypot: invisible to people and assistive technologies, filled by naive bots.
       h('div', { 'class': 'sd-honeypot', 'aria-hidden': 'true' },
@@ -153,6 +158,33 @@ export class StaticDeskContact extends StaticDeskElement {
     this.root.append(this.trigger, this.backdrop, this.dialog)
   }
 
+  /** Custom fields are named "field:<id>" so they never clash with the built-in inputs. */
+  private customField(custom: ContactField, field: (label: string, control: HTMLElement, optional?: boolean) => HTMLElement) {
+    const name = `field:${custom.id}`
+    const required = custom.required
+    if (custom.type === 'checkbox') {
+      return h('label', { class: 'sd-check' },
+        h('input', { type: 'checkbox', name, required }),
+        h('span', {}, custom.label))
+    }
+    let control: HTMLElement
+    if (custom.type === 'select') {
+      control = h('select', { class: 'sd-input', name, required },
+        h('option', { value: '' }, this.t('contact.choose')),
+        ...custom.options.map(option => h('option', { value: option }, option)))
+    }
+    else {
+      control = h(custom.type === 'textarea' ? 'textarea' : 'input', {
+        class: 'sd-input',
+        name,
+        required,
+        placeholder: custom.placeholder ?? undefined,
+        maxlength: custom.type === 'textarea' ? '5000' : '500',
+      })
+    }
+    return field(custom.label, control, !required)
+  }
+
   /** Opens the floating form (no-op for inline forms). */
   open() {
     if (!this.dialog || !this.dialog.hidden) return
@@ -193,24 +225,37 @@ export class StaticDeskContact extends StaticDeskElement {
     this.form.setAttribute('aria-busy', 'true')
     this.status.textContent = ''
 
+    const config = this.widget!.config as ContactWidgetConfig
+    const fields: Record<string, string | boolean> = {}
+    for (const custom of config.fields ?? []) {
+      const raw = data.get(`field:${custom.id}`)
+      if (custom.type === 'checkbox') fields[custom.id] = raw !== null
+      else if (raw !== null && String(raw).trim()) fields[custom.id] = String(raw).trim()
+    }
+
     try {
       await this.runtime!.api.submitContact({
         name: value('name') || undefined,
         email: value('email'),
         message: value('message'),
+        fields,
         widgetId: this.widget!.id,
         ...currentPage(),
         website: value('website') || undefined,
         elapsedMs: Date.now() - this.shownAt,
         turnstileToken: this.turnstile?.token() ?? undefined,
       })
+      if (config.redirectUrl) {
+        location.assign(config.redirectUrl)
+        return
+      }
       this.form.hidden = true
       this.success.hidden = false
       this.success.querySelector('button')!.focus()
     }
     catch (error) {
       this.status.textContent = error instanceof ApiError
-        ? (error.status === 429 ? this.t('error.rateLimited') : this.t('error.generic'))
+        ? (error.status === 429 ? this.t('error.rateLimited') : config.errorMessage ?? this.t('error.generic'))
         : this.t('error.network')
     }
     finally {

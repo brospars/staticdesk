@@ -30,7 +30,7 @@ export const baseStyles = `
 }
 *, *::before, *::after { box-sizing: border-box; }
 [hidden] { display: none !important; }
-button, input, textarea { font: inherit; color: inherit; }
+button, input, select, textarea { font: inherit; color: inherit; }
 :focus-visible { outline: 2px solid var(--sd-primary); outline-offset: 2px; }
 .sd-button {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;

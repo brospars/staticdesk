@@ -136,6 +136,47 @@ describe('<staticdesk-contact>', () => {
     expect(root.querySelector<HTMLButtonElement>('.sd-submit')!.disabled).toBe(false)
   })
 
+  it('renders and submits custom fields', async () => {
+    api.config.mockResolvedValue({
+      ...site,
+      widgets: [{
+        ...site.widgets[0]!,
+        config: {
+          ...site.widgets[0]!.config,
+          nameField: 'hidden',
+          fields: [
+            { id: 'company', type: 'text', label: 'Company', required: true, placeholder: null, options: [] },
+            { id: 'topic', type: 'select', label: 'Topic', required: false, placeholder: null, options: ['Sales', 'Support'] },
+            { id: 'consent', type: 'checkbox', label: 'I agree', required: true, placeholder: null, options: [] },
+          ],
+        },
+      }],
+    })
+    const { root } = await mount()
+    expect(root.querySelector('[name="name"]')).toBeNull()
+    expect(root.querySelector<HTMLInputElement>('[name="field:company"]')!.required).toBe(true)
+    expect([...root.querySelectorAll('select option')].map(option => option.textContent)).toEqual(['Choose…', 'Sales', 'Support'])
+
+    fill(root, { 'email': 'ada@example.com', 'message': 'Hello', 'field:company': ' Acme ', 'field:topic': 'Support' })
+    root.querySelector<HTMLInputElement>('[name="field:consent"]')!.checked = true
+    root.querySelector('form')!.requestSubmit()
+
+    await vi.waitFor(() => expect(api.submitContact).toHaveBeenCalled())
+    expect(api.submitContact.mock.calls[0]![0].fields).toEqual({ company: 'Acme', topic: 'Support', consent: true })
+  })
+
+  it('shows the configured error message', async () => {
+    api.config.mockResolvedValue({
+      ...site,
+      widgets: [{ ...site.widgets[0]!, config: { ...site.widgets[0]!.config, errorMessage: 'Write to hello@acme.dev instead.' } }],
+    })
+    api.submitContact.mockRejectedValue(new ApiError(500, 'Boom'))
+    const { root } = await mount()
+    fill(root, { email: 'ada@example.com', message: 'Hello' })
+    root.querySelector('form')!.requestSubmit()
+    await vi.waitFor(() => expect(root.querySelector('[role="alert"]')!.textContent).toBe('Write to hello@acme.dev instead.'))
+  })
+
   it('renders nothing when the site has no contact widget', async () => {
     api.config.mockResolvedValue({ ...site, widgets: [] })
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})

@@ -43,6 +43,10 @@ To pin a version, load it from a CDN and point it to your StaticDesk server:
 
 Open the floating form from your own button with `StaticDesk.openContact()`.
 
+Texts, custom fields (text, long text, choice list, checkbox), the name field
+(optional, required or hidden), the redirect page and team notifications are
+set per form in the dashboard.
+
 ### Styling
 
 Widgets render in a Shadow DOM, so your page styles do not leak in. Customize
