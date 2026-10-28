@@ -108,9 +108,10 @@ describe('contactWidgetFormSchema', () => {
       position: 'bottom-right',
       nameField: 'required',
       fields: [],
+      attachments: true,
       notifyTeam: false,
     })
-    expect(result).toMatchObject({ title: null, buttonLabel: 'Write to us', redirectUrl: null })
+    expect(result).toMatchObject({ title: null, buttonLabel: 'Write to us', redirectUrl: null, attachments: true })
   })
 })
 
@@ -129,5 +130,12 @@ describe('buildHtmlFormSnippet', () => {
     expect(html).toContain('&lt;b&gt;Note&lt;/b&gt;')
     expect(html).toContain('placeholder="a &quot;quote&quot;"')
     expect(html).toContain('name="_honeypot"')
+    expect(html).not.toContain('type="file"')
+  })
+
+  it('posts files as multipart/form-data when the form accepts attachments', () => {
+    const html = buildHtmlFormSnippet({ actionUrl: 'https://staticdesk.app/f/abc', nameField: 'optional', fields: [], attachments: true })
+    expect(html).toContain('<form action="https://staticdesk.app/f/abc" method="POST" enctype="multipart/form-data">')
+    expect(html).toMatch(/<input name="attachments" type="file" multiple accept="image\/png,[^"]*\.pdf[^"]*">/)
   })
 })

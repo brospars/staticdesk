@@ -39,7 +39,7 @@ To pin a version, load it from a CDN and point it to your StaticDesk server:
 | `mode="floating"` | Floating button that opens the form in a dialog. Without it, the form renders inline. |
 | `widget-id` | Use a specific contact widget of the site. |
 | `locale` | Language for this element. |
-| `theme` | `auto` (default), `light` or `dark`. |
+| `theme` | `auto` (default), `light` or `dark`. Can be changed at any time. |
 
 Open the floating form from your own button with `StaticDesk.openContact()`.
 

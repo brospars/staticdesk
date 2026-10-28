@@ -30,6 +30,9 @@ dashboard generates the markup, including custom fields):
 </form>
 ```
 
+To accept attachments (enable them on the form), post the form as
+`enctype="multipart/form-data"` with `<input type="file" name="attachments" multiple>`.
+
 Optional inputs: `_redirect` (a page on one of the site's allowed origins to
 open after sending). If the site requires Cloudflare Turnstile, add the Turnstile
 widget inside the form: its `cf-turnstile-response` input is verified. Send
@@ -47,6 +50,24 @@ body with these headers:
   is the hex HMAC-SHA256 of `<t>.<raw body>` with the webhook's signing secret.
   Compare it in constant time and reject old timestamps.
 
+## Self-hosting
+
+Run StaticDesk on your own server with Docker Compose (the app, Supabase and
+Caddy with automatic HTTPS):
+
+```sh
+cd docker
+node generate-env.mjs > .env   # then set SITE_URL and the SMTP settings
+docker compose up -d --build
+```
+
+See the [self-hosting guide](docs/self-hosting.md).
+
+## Integrations
+
+- Any static site: the HTML snippet above.
+- Docusaurus: [`@staticdesk/docusaurus-plugin`](packages/integrations/docusaurus/README.md).
+
 ## Stack
 
 Nuxt 4 · Nuxt UI 4 · Supabase · Resend · Stripe · Vercel
@@ -58,6 +79,8 @@ Nuxt 4 · Nuxt UI 4 · Supabase · Resend · Stripe · Vercel
 | `apps/web` | Nuxt app: landing page, dashboard and API |
 | `packages/core` | Shared Zod schemas and types |
 | `packages/widget` | Browser SDK (`widget.js`), Shadow DOM web components |
+| `packages/integrations/docusaurus` | Docusaurus plugin |
+| `docker` | Docker Compose setup for self-hosting (`Dockerfile` at the root) |
 
 ## Development
 

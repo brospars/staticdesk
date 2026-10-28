@@ -42,4 +42,22 @@ describe('InboxMessage', () => {
     })
     expect(wrapper.text()).toContain('Sent from ada@work.example.com')
   })
+
+  it('lists attachments with their size', async () => {
+    const wrapper = await mountSuspended(InboxMessage, {
+      props: {
+        author: 'Ada',
+        message: {
+          ...base,
+          direction: 'inbound',
+          body: 'See attached',
+          metadata: {},
+          attachments: [{ id: 'a-1', file_name: 'invoice.pdf', size_bytes: 34_000, storage_path: 'w/s/a-1/invoice.pdf' }],
+        },
+      },
+    })
+    const button = wrapper.find('button[aria-label="Download invoice.pdf"]')
+    expect(button.exists()).toBe(true)
+    expect(button.text()).toContain('34 kB')
+  })
 })

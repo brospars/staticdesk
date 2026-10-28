@@ -5,7 +5,39 @@ export type Database = {
   
   "public": {
           Tables: {
-            "auto_replies": {
+            "attachments": {
+                  Row: {
+                    "content_type": string,"created_at": string,"file_name": string,"id": string,"message_id": string | null,"site_id": string,"size_bytes": number,"storage_path": string,"workspace_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "content_type": string,"created_at"?: string,"file_name": string,"id"?: string,"message_id"?: string | null,"site_id": string,"size_bytes": number,"storage_path": string,"workspace_id": string
+                  }
+                  Update: {
+                    "content_type"?: string,"created_at"?: string,"file_name"?: string,"id"?: string,"message_id"?: string | null,"site_id"?: string,"size_bytes"?: number,"storage_path"?: string,"workspace_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "attachments_message_id_fkey"
+      columns: ["message_id"]
+isOneToOne: false
+      referencedRelation: "messages"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "attachments_site_id_workspace_id_fkey"
+      columns: ["site_id","workspace_id"]
+isOneToOne: false
+      referencedRelation: "sites"
+      referencedColumns: ["id","workspace_id"]
+    },{
+      foreignKeyName: "attachments_workspace_id_fkey"
+      columns: ["workspace_id"]
+isOneToOne: false
+      referencedRelation: "workspaces"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"auto_replies": {
                   Row: {
                     "add_labels": (string)[],"assignee_id": string | null,"body": string | null,"conditions": NonNullable<Json>,"created_at": string,"delay_minutes": number,"enabled": boolean,"id": string,"name": string,"position": number,"send_email": boolean,"site_id": string | null,"subject": string | null,"trigger": Database["public"]['Enums']["auto_reply_trigger"],"updated_at": string,"workspace_id": string
                   }
@@ -242,7 +274,7 @@ isOneToOne: false
                     {
       foreignKeyName: "notification_preferences_workspace_id_user_id_fkey"
       columns: ["workspace_id","user_id"]
-isOneToOne: false
+isOneToOne: true
       referencedRelation: "members"
       referencedColumns: ["workspace_id","user_id"]
     }
@@ -421,14 +453,14 @@ isOneToOne: false
                   ]
                 },"webhooks": {
                   Row: {
-                    "created_at": string,"enabled": boolean,"events": string[],"id": string,"kind": Database["public"]['Enums']["webhook_kind"],"last_delivery_at": string | null,"last_error": string | null,"last_status": number | null,"secret": string,"site_id": string,"updated_at": string,"url": string,"workspace_id": string
+                    "created_at": string,"enabled": boolean,"events": (string)[],"id": string,"kind": Database["public"]['Enums']["webhook_kind"],"last_delivery_at": string | null,"last_error": string | null,"last_status": number | null,"secret": string,"site_id": string,"updated_at": string,"url": string,"workspace_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"enabled"?: boolean,"events"?: string[],"id"?: string,"kind"?: Database["public"]['Enums']["webhook_kind"],"last_delivery_at"?: string | null,"last_error"?: string | null,"last_status"?: number | null,"secret"?: string,"site_id": string,"updated_at"?: string,"url": string,"workspace_id": string
+                    "created_at"?: string,"enabled"?: boolean,"events"?: (string)[],"id"?: string,"kind"?: Database["public"]['Enums']["webhook_kind"],"last_delivery_at"?: string | null,"last_error"?: string | null,"last_status"?: number | null,"secret"?: string,"site_id": string,"updated_at"?: string,"url": string,"workspace_id": string
                   }
                   Update: {
-                    "created_at"?: string,"enabled"?: boolean,"events"?: string[],"id"?: string,"kind"?: Database["public"]['Enums']["webhook_kind"],"last_delivery_at"?: string | null,"last_error"?: string | null,"last_status"?: number | null,"secret"?: string,"site_id"?: string,"updated_at"?: string,"url"?: string,"workspace_id"?: string
+                    "created_at"?: string,"enabled"?: boolean,"events"?: (string)[],"id"?: string,"kind"?: Database["public"]['Enums']["webhook_kind"],"last_delivery_at"?: string | null,"last_error"?: string | null,"last_status"?: number | null,"secret"?: string,"site_id"?: string,"updated_at"?: string,"url"?: string,"workspace_id"?: string
                   }
                   Relationships: [
                     {
@@ -528,7 +560,21 @@ isOneToOne: false
 { Args: { "body": string,"email_message_id": string,"from_email"?: string,"metadata"?: Json,"thread_id": string }; Returns: string
                            },
 "search_threads":
-{ Args: { "assignee"?: string,"label"?: string,"query"?: string,"site"?: string,"statuses"?: Database["public"]['Enums']["thread_status"][],"unassigned"?: boolean,"ws": string }; Returns: Database["public"]["Tables"]["threads"]["Row"][]
+{ Args: { "assignee"?: string,"label"?: string,"query"?: string,"site"?: string,"statuses"?: (Database["public"]['Enums']["thread_status"])[],"unassigned"?: boolean,"ws": string }; Returns: {
+              "assignee_id": string | null,
+"contact_id": string,
+"created_at": string,
+"follow_up_notified_at": string | null,
+"id": string,
+"labels": (string)[],
+"last_message_at": string,
+"site_id": string,
+"status": Database["public"]['Enums']["thread_status"],
+"subject": string | null,
+"updated_at": string,
+"widget_id": string | null,
+"workspace_id": string
+            }[]
                           SetofOptions: {
         from: "*"
         to: "threads"
@@ -536,7 +582,7 @@ isOneToOne: false
         isSetofReturn: true
       } },
 "submit_contact":
-{ Args: { "email": string,"fields"?: Json,"message": string,"name"?: string,"page_id": string,"page_url"?: string,"site_id": string,"widget_id"?: string }; Returns: string
+{ Args: { "attachment_ids"?: (string)[],"email": string,"fields"?: Json,"message": string,"name"?: string,"page_id": string,"page_url"?: string,"site_id": string,"widget_id"?: string }; Returns: string
                            },
 "suppress_email":
 { Args: { "address": string,"reason": string }; Returns: number

@@ -1,4 +1,5 @@
 import type { Database } from '../database.types'
+import { ATTACHMENT_LIMITS, publicAttachmentLimits } from '../schemas/attachments'
 import type { ContactField } from '../schemas/contact-form'
 
 export type WidgetKind = Database['public']['Enums']['widget_kind']
@@ -41,6 +42,8 @@ export interface HtmlFormOptions {
   actionUrl: string
   nameField: 'optional' | 'required' | 'hidden'
   fields: readonly ContactField[]
+  /** Adds a file input; the form is then posted as multipart/form-data. */
+  attachments?: boolean
   submitLabel?: string
 }
 
@@ -48,10 +51,11 @@ export interface HtmlFormOptions {
  * A plain HTML contact form that posts to StaticDesk and works without
  * JavaScript. The hidden _honeypot input must stay empty.
  */
-export function buildHtmlFormSnippet({ actionUrl, nameField, fields, submitLabel = 'Send' }: HtmlFormOptions): string {
+export function buildHtmlFormSnippet({ actionUrl, nameField, fields, attachments = false, submitLabel = 'Send' }: HtmlFormOptions): string {
   const field = (label: string, control: string) => `  <label>\n    ${escapeText(label)}\n    ${control}\n  </label>`
   const required = (value: boolean) => value ? ' required' : ''
-  const lines = [`<form action="${escapeAttribute(actionUrl)}" method="POST">`]
+  const encoding = attachments ? ' enctype="multipart/form-data"' : ''
+  const lines = [`<form action="${escapeAttribute(actionUrl)}" method="POST"${encoding}>`]
 
   if (nameField !== 'hidden') {
     lines.push(field('Name', `<input name="name" autocomplete="name"${required(nameField === 'required')}>`))
@@ -75,9 +79,32 @@ export function buildHtmlFormSnippet({ actionUrl, nameField, fields, submitLabel
     }
   }
   lines.push(field('Message', '<textarea name="message" required></textarea>'))
+  if (attachments) {
+    lines.push(`  <!-- Up to ${ATTACHMENT_LIMITS.maxFiles} files, ${ATTACHMENT_LIMITS.maxBytes / 1024 / 1024} MB each. -->`)
+    lines.push(field('Attachments', `<input name="attachments" type="file" multiple accept="${publicAttachmentLimits.accept}">`))
+  }
   lines.push('  <!-- Anti-spam: keep this field hidden and empty. -->')
   lines.push('  <input name="_honeypot" style="display:none" tabindex="-1" autocomplete="off">')
   lines.push(`  <button type="submit">${escapeText(submitLabel)}</button>`)
   lines.push('</form>')
   return lines.join('\n')
+}
+
+/** Script URL the Docusaurus plugin uses when none is given. */
+export const DEFAULT_WIDGET_SCRIPT_URL = 'https://staticdesk.app/widget.js'
+
+/** Install command and docusaurus.config.js excerpt for @staticdesk/docusaurus-plugin. */
+export function buildDocusaurusSnippet({ scriptUrl, siteKey }: Pick<EmbedSnippetOptions, 'scriptUrl' | 'siteKey'>): string {
+  const options = [`siteKey: '${siteKey.replace(/[^\w]/g, '')}'`]
+  // Self-hosted servers serve their own widget.js.
+  if (scriptUrl !== DEFAULT_WIDGET_SCRIPT_URL) options.push(`scriptUrl: '${scriptUrl.replace(/['\\\n]/g, '')}'`)
+  return [
+    '// npm install @staticdesk/docusaurus-plugin',
+    '// docusaurus.config.js',
+    'export default {',
+    '  plugins: [',
+    `    ['@staticdesk/docusaurus-plugin', { ${options.join(', ')} }],`,
+    '  ],',
+    '}',
+  ].join('\n')
 }

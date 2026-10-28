@@ -25,7 +25,9 @@ export function signWebhook(secret: string, body: string, timestamp: number): st
 
 function summary(payload: ContactSubmittedPayload) {
   const from = payload.contact.name ? `${payload.contact.name} (${payload.contact.email})` : payload.contact.email
-  return { from, lines: payload.fields.map(field => `${field.label}: ${field.value}`) }
+  const lines = payload.fields.map(field => `${field.label}: ${field.value}`)
+  if (payload.attachments.length) lines.push(`Attachments: ${payload.attachments.map(file => file.name).join(', ')}`)
+  return { from, lines }
 }
 
 // Slack mrkdwn treats &, < and > as control characters.

@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 import type { WidgetKind } from '../embed/snippet'
+import { attachmentIdsSchema, type PublicAttachmentLimits } from './attachments'
 import { contactSubmissionSchema } from './contact'
 import type { Locale } from './site-settings'
 
@@ -11,6 +12,8 @@ export interface PublicSiteConfig {
   theme: { primaryColor: string | null, mode: 'auto' | 'light' | 'dark' }
   /** Cloudflare Turnstile site key when the site requires a challenge. */
   turnstileSiteKey: string | null
+  /** Limits for contact forms that accept attachments. */
+  attachments: PublicAttachmentLimits
   widgets: PublicWidget[]
 }
 
@@ -48,6 +51,8 @@ export const antiSpamSchema = z.object({
 /** POST /api/v1/public/sites/:key/contact */
 export const publicContactRequestSchema = contactSubmissionSchema.extend({
   widgetId: z.guid().optional(),
+  /** Ids returned by POST /attachments, once the files are uploaded. */
+  attachments: attachmentIdsSchema.optional(),
   ...pageFields,
 }).extend(antiSpamSchema.shape)
 

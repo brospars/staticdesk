@@ -3,6 +3,7 @@ import { isOriginAllowed, type Locale } from '@staticdesk/core'
 import { serverSupabaseServiceRole } from '#supabase/server'
 
 import { escapeHtml } from '../../emails/escape'
+import type { AttachmentFile } from '../contact/attachments'
 import type { PublicSite } from './site'
 
 const WIDGET_TTL_MS = 30_000
@@ -57,20 +58,29 @@ export function allowedSiteUrl(value: string | undefined, site: PublicSite): str
   }
 }
 
-/** Reads a urlencoded or multipart form body as single string values. Files are ignored. */
-export async function readFormFields(event: H3Event): Promise<Record<string, string>> {
+/**
+ * Reads a urlencoded or multipart form body: single string values, and the
+ * files of multipart bodies (empty file inputs are skipped).
+ */
+export async function readFormSubmission(event: H3Event): Promise<{ values: Record<string, string>, files: AttachmentFile[] }> {
   const type = getRequestHeader(event, 'content-type') ?? ''
   const values: Record<string, string> = {}
+  const files: AttachmentFile[] = []
 
   if (type.startsWith('multipart/form-data')) {
     for (const part of await readMultipartFormData(event) ?? []) {
-      if (part.name && !part.filename) values[part.name] = part.data.toString('utf8')
+      if (part.filename !== undefined) {
+        if (part.filename && part.data.length) files.push({ name: part.filename, type: part.type || 'application/octet-stream', data: part.data })
+      }
+      else if (part.name) {
+        values[part.name] = part.data.toString('utf8')
+      }
     }
-    return values
+    return { values, files }
   }
   if (type.startsWith('application/x-www-form-urlencoded')) {
     for (const [name, value] of new URLSearchParams(await readRawBody(event, 'utf8') ?? '')) values[name] = value
-    return values
+    return { values, files }
   }
   throw createError({ statusCode: 415, statusMessage: 'Send the form as application/x-www-form-urlencoded or multipart/form-data' })
 }

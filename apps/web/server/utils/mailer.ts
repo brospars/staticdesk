@@ -1,3 +1,4 @@
+import { createTransport } from 'nodemailer'
 import { Resend } from 'resend'
 
 export interface MailMessage {
@@ -39,6 +40,39 @@ function createResendMailer(resend: Resend, from: string): Mailer {
   }
 }
 
+interface SmtpOptions {
+  host: string
+  port: number
+  /** TLS from the start (port 465). Otherwise STARTTLS is used when the server offers it. */
+  secure: boolean
+  user: string
+  pass: string
+}
+
+/** Sends through any SMTP server (self-hosting without Resend). */
+export function createSmtpMailer(options: SmtpOptions, from: string): Mailer {
+  const transport = createTransport({
+    host: options.host,
+    port: options.port,
+    secure: options.secure,
+    auth: options.user ? { user: options.user, pass: options.pass } : undefined,
+  })
+  return {
+    async send(message) {
+      const info = await transport.sendMail({
+        from: message.from ?? from,
+        to: message.to,
+        replyTo: message.replyTo,
+        subject: message.subject,
+        text: message.text,
+        html: message.html,
+        headers: message.headers,
+      })
+      return { id: info.messageId ?? null }
+    },
+  }
+}
+
 let mailer: Mailer | undefined
 let resend: Resend | null | undefined
 
@@ -60,11 +94,23 @@ export function useResend(): Resend | null {
   return resend
 }
 
-/** Returns the mailer configured by NUXT_MAIL_DRIVER ('log' or 'resend'). */
+/** Returns the mailer configured by NUXT_MAIL_DRIVER ('log', 'resend' or 'smtp'). */
 export function useMailer(): Mailer {
   if (mailer) return mailer
 
+  const { mail } = useRuntimeConfig()
+  if (mail.driver === 'smtp') {
+    if (!mail.smtpHost) throw new Error('NUXT_MAIL_SMTP_HOST is required when NUXT_MAIL_DRIVER=smtp')
+    mailer = createSmtpMailer({
+      host: String(mail.smtpHost),
+      port: Number(mail.smtpPort) || 587,
+      secure: String(mail.smtpSecure) === 'true',
+      user: String(mail.smtpUser ?? ''),
+      pass: String(mail.smtpPass ?? ''),
+    }, mail.from)
+    return mailer
+  }
   const client = useResend()
-  mailer = client ? createResendMailer(client, useRuntimeConfig().mail.from) : logMailer
+  mailer = client ? createResendMailer(client, mail.from) : logMailer
   return mailer
 }

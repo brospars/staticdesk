@@ -1,4 +1,4 @@
-import type { PublicContactRequest, PublicEvent, PublicSiteConfig } from '@staticdesk/core'
+import type { AttachmentUploadResponse, PublicContactRequest, PublicEvent, PublicSiteConfig } from '@staticdesk/core'
 
 import type { StaticDeskConfig } from './config'
 
@@ -12,6 +12,8 @@ export interface Api {
   config(): Promise<PublicSiteConfig>
   track(event: PublicEvent): void
   submitContact(payload: PublicContactRequest): Promise<void>
+  /** Uploads a file for a contact form and returns its attachment id. */
+  uploadAttachment(file: File, widgetId: string): Promise<string>
 }
 
 async function fail(response: Response): Promise<never> {
@@ -54,6 +56,20 @@ export function createApi({ siteKey, apiBase }: StaticDeskConfig): Api {
         body: JSON.stringify(payload),
       })
       if (!response.ok) await fail(response)
+    },
+
+    async uploadAttachment(file, widgetId) {
+      const response = await fetch(`${base}/attachments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ widgetId, name: file.name, type: file.type, size: file.size }),
+      })
+      if (!response.ok) await fail(response)
+      const { id, uploadUrl } = await response.json() as AttachmentUploadResponse
+      // Signed storage URL: the file goes straight to storage, not through the API.
+      const upload = await fetch(uploadUrl, { method: 'PUT', headers: { 'Content-Type': file.type }, body: file })
+      if (!upload.ok) await fail(upload)
+      return id
     },
   }
 }

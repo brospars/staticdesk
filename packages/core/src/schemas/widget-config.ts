@@ -32,6 +32,8 @@ export const contactWidgetConfigSchema = z.object({
   nameField: z.enum(NAME_FIELD_MODES).catch('optional'),
   /** Custom fields shown between the email and the message. */
   fields: storedFields,
+  /** Let visitors attach files (see ATTACHMENT_LIMITS). */
+  attachments: z.boolean().catch(false),
   /** Email the workspace members about each new message. */
   notifyTeam: z.boolean().catch(true),
 })
@@ -56,6 +58,7 @@ export const contactWidgetFormSchema = z.object({
   position: z.enum(['bottom-right', 'bottom-left']),
   nameField: z.enum(NAME_FIELD_MODES),
   fields: contactFieldsSchema,
+  attachments: z.boolean(),
   notifyTeam: z.boolean(),
 })
 

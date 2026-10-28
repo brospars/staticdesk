@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { parseContactWidgetConfig, parseSiteSettings, type ContactSubmittedPayload } from '@staticdesk/core'
 
 import { newMessageEmail } from '../../server/emails/new-message'
+import { attachmentPath, checkAttachmentFiles } from '../../server/utils/contact/attachments'
 import { resolveContactForm, validateContactFields } from '../../server/utils/contact/submit'
 import { allowedSiteUrl, formOrigin, formPageLocale, renderFormPage } from '../../server/utils/public/form'
 import type { PublicSite } from '../../server/utils/public/site'
@@ -35,6 +36,7 @@ const payload: ContactSubmittedPayload = {
   contact: { email: 'ada@example.com', name: 'Ada' },
   message: 'Hello <@here> & @everyone',
   fields: [{ id: 'company', label: 'Company', value: 'Acme' }],
+  attachments: [{ name: 'notes.pdf', size: 2048, contentType: 'application/pdf' }],
   page: { id: '/pricing', url: 'https://docs.acme.dev/pricing' },
 }
 
@@ -109,6 +111,7 @@ describe('newMessageEmail', () => {
       contact: payload.contact,
       message: 'First line\n<b>second</b>',
       fields: payload.fields,
+      attachments: payload.attachments,
       pageUrl: payload.page.url,
       dashboardUrl: 'https://staticdesk.app/app',
     })
@@ -116,6 +119,7 @@ describe('newMessageEmail', () => {
     expect(email.subject).toBe('[Docs] First line')
     expect(email.text).toContain('Company: Acme')
     expect(email.text).toContain('Page: https://docs.acme.dev/pricing')
+    expect(email.text).toContain('Attachments: notes.pdf (2 kB)')
     expect(email.html).toContain('&lt;b&gt;second&lt;/b&gt;')
   })
 })
@@ -173,5 +177,20 @@ describe('webhooks', () => {
     const target = { ...custom, url: 'https://127.0.0.1/hook' }
     expect((await deliverWebhook(target, buildWebhookRequest(target, payload), fetcher)).ok).toBe(false)
     expect(fetcher).not.toHaveBeenCalled()
+  })
+})
+
+describe('attachments', () => {
+  it('stores files under the workspace and site, with a safe name', () => {
+    expect(attachmentPath(site, 'a-1', '../Résumé.pdf')).toBe('ws-1/site-1/a-1/Resume.pdf')
+  })
+
+  it('checks the number, type and size of posted files', () => {
+    const file = (name: string, type: string, size = 10) => ({ name, type, data: Buffer.alloc(size) })
+    expect(checkAttachmentFiles([file('a.pdf', 'application/pdf')])).toEqual([])
+    expect(checkAttachmentFiles([file('a.html', 'text/html')])).toEqual(['a.html: this file type is not accepted'])
+    expect(checkAttachmentFiles([file('big.png', 'image/png', 6 * 1024 * 1024)])).toEqual(['big.png: this file is too large'])
+    expect(checkAttachmentFiles(Array.from({ length: 4 }, (_, i) => file(`${i}.png`, 'image/png')))).toEqual(['Attach at most 3 files'])
+    expect(checkAttachmentFiles([file('a.png', 'image/png')], 3)).toEqual(['Attach at most 3 files'])
   })
 })

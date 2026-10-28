@@ -1,0 +1,14 @@
+**/node_modules
+**/.nuxt
+**/.output
+**/.turbo
+**/dist
+**/lib
+**/.env
+**/.env.*
+!**/.env.example
+.git
+apps/web/test-results
+apps/web/playwright-report
+docker/volumes
+docker/.env

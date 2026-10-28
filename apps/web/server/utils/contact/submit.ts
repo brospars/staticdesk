@@ -13,12 +13,17 @@ import { serverSupabaseServiceRole } from '#supabase/server'
 
 import { newMessageEmail } from '../../emails/new-message'
 import type { PublicSite } from '../public/site'
+import { checkAttachmentFiles, describeAttachments, storeAttachmentFiles, type AttachmentFile } from './attachments'
 
 export interface ContactSubmissionInput {
   name?: string
   email: string
   message: string
   fields?: Record<string, string | boolean>
+  /** Ids of files uploaded by the widget beforehand. */
+  attachments?: string[]
+  /** Files posted with a plain HTML form, stored before the message. */
+  files?: AttachmentFile[]
   widgetId?: string
   pageId: string
   pageUrl?: string
@@ -90,6 +95,19 @@ export async function submitContactMessage(event: H3Event, site: PublicSite, inp
   }
   const fields = describeFieldValues(form.config.fields, validation.values)
 
+  const uploadedIds = [...new Set(input.attachments ?? [])]
+  const files = input.files ?? []
+  if (uploadedIds.length || files.length) {
+    if (!form.config.attachments) {
+      throw createError({ statusCode: 400, statusMessage: 'This form does not accept attachments' })
+    }
+    const fileErrors = checkAttachmentFiles(files, uploadedIds.length)
+    if (fileErrors.length) {
+      throw createError({ statusCode: 400, statusMessage: 'Invalid submission', data: { attachments: fileErrors } })
+    }
+  }
+  const attachmentIds = [...uploadedIds, ...await storeAttachmentFiles(event, site, files)]
+
   const { data: threadId, error } = await serverSupabaseServiceRole(event).rpc('submit_contact', {
     site_id: site.id,
     email: input.email,
@@ -99,7 +117,12 @@ export async function submitContactMessage(event: H3Event, site: PublicSite, inp
     name: validation.name,
     page_url: input.pageUrl,
     fields,
+    attachment_ids: attachmentIds.length ? attachmentIds : undefined,
   })
+  // Raised when an attachment was not uploaded, expired or belongs to another submission.
+  if (error?.code === '22023') {
+    throw createError({ statusCode: 400, statusMessage: 'Invalid submission', data: { attachments: ['An attachment could not be found, please attach it again'] } })
+  }
   if (error) {
     console.error('[contact] submit_contact failed', error.message)
     throw createError({ statusCode: 500, statusMessage: 'Could not send your message' })
@@ -115,6 +138,7 @@ export async function submitContactMessage(event: H3Event, site: PublicSite, inp
     contact: { email: input.email.toLowerCase(), name: validation.name ?? null },
     message: input.message,
     fields,
+    attachments: await describeAttachments(event, attachmentIds),
     page: { id: input.pageId, url: input.pageUrl ?? null },
   }
   // Notifications and auto-replies must not slow down or fail the visitor's request.
@@ -144,6 +168,7 @@ async function notifyTeam(event: H3Event, site: PublicSite, payload: ContactSubm
     contact: payload.contact,
     message: payload.message,
     fields: payload.fields,
+    attachments: payload.attachments,
     pageUrl: payload.page.url,
     dashboardUrl,
   }))))

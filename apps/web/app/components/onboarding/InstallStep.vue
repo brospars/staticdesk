@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { buildEmbedSnippet, type WidgetKind } from '@staticdesk/core'
+import { buildDocusaurusSnippet, buildEmbedSnippet, type WidgetKind } from '@staticdesk/core'
 
 const props = defineProps<{ siteId: string, publicKey: string, kind: WidgetKind }>()
 
@@ -7,11 +7,26 @@ const supabase = useSupabaseClient()
 const appUrl = useAppUrl()
 const { copy, copied } = useClipboard()
 
-const snippet = computed(() => buildEmbedSnippet({
-  scriptUrl: `${appUrl.value}/widget.js`,
-  siteKey: props.publicKey,
-  kind: props.kind,
-}))
+const scriptUrl = computed(() => `${appUrl.value}/widget.js`)
+// The Docusaurus plugin only adds the contact form for now.
+const targets = computed(() => [
+  {
+    label: 'HTML',
+    value: 'html',
+    help: 'Paste this snippet where the widget should appear, or before </body>. Works with any static site.',
+    code: buildEmbedSnippet({ scriptUrl: scriptUrl.value, siteKey: props.publicKey, kind: props.kind }),
+  },
+  ...(props.kind === 'contact'
+    ? [{
+        label: 'Docusaurus',
+        value: 'docusaurus',
+        help: 'Install the plugin and add it to docusaurus.config.js: the contact button shows on every page.',
+        code: buildDocusaurusSnippet({ scriptUrl: scriptUrl.value, siteKey: props.publicKey }),
+      }]
+    : []),
+])
+const target = ref('html')
+const current = computed(() => targets.value.find(item => item.value === target.value) ?? targets.value[0]!)
 
 // Polls for the first event sent by the widget to confirm the installation.
 const installed = ref(false)
@@ -29,18 +44,26 @@ const { pause } = useIntervalFn(async () => {
 
 <template>
   <div class="space-y-4">
+    <UTabs
+      v-if="targets.length > 1"
+      v-model="target"
+      :items="targets"
+      :content="false"
+      variant="link"
+      size="sm"
+    />
     <p class="text-sm text-muted">
-      Paste this snippet where the widget should appear, or before <code>&lt;/body&gt;</code>.
+      {{ current.help }}
     </p>
     <div class="relative">
-      <pre class="overflow-x-auto rounded-md bg-elevated p-4 pr-12 text-sm"><code>{{ snippet }}</code></pre>
+      <pre class="overflow-x-auto rounded-md bg-elevated p-4 pr-12 text-sm"><code>{{ current.code }}</code></pre>
       <UButton
         class="absolute top-2 right-2"
         color="neutral"
         variant="ghost"
         :icon="copied ? 'i-lucide-check' : 'i-lucide-copy'"
         aria-label="Copy snippet"
-        @click="copy(snippet)"
+        @click="copy(current.code)"
       />
     </div>
 

@@ -55,6 +55,7 @@ export class StaticDeskContact extends StaticDeskElement {
   private success!: HTMLElement
   private status!: HTMLElement
   private submit!: HTMLButtonElement
+  private fileInput: HTMLInputElement | null = null
   private shownAt = 0
   private turnstile: TurnstileHandle | null = null
 
@@ -92,6 +93,7 @@ export class StaticDeskContact extends StaticDeskElement {
       field(t('contact.email'), h('input', { class: 'sd-input', name: 'email', type: 'email', autocomplete: 'email', required: true, maxlength: '320' })),
       ...(config.fields ?? []).map(custom => this.customField(custom, field)),
       field(t('contact.message'), h('textarea', { class: 'sd-input', name: 'message', required: true, maxlength: '5000' })),
+      config.attachments && this.attachmentField(),
       // Honeypot: invisible to people and assistive technologies, filled by naive bots.
       h('div', { 'class': 'sd-honeypot', 'aria-hidden': 'true' },
         h('input', { name: 'website', tabindex: '-1', autocomplete: 'off' })),
@@ -185,6 +187,29 @@ export class StaticDeskContact extends StaticDeskElement {
     return field(custom.label, control, !required)
   }
 
+  private attachmentField() {
+    const limits = this.site!.attachments
+    const hintId = uid('hint')
+    this.fileInput = h('input', { 'class': 'sd-input', 'type': 'file', 'name': 'attachments', 'multiple': true, 'accept': limits.accept, 'aria-describedby': hintId })
+    return h('label', { class: 'sd-field' },
+      h('span', { class: 'sd-label' }, this.t('contact.attachments'), h('span', { class: 'sd-hint' }, ` (${this.t('contact.optional')})`)),
+      this.fileInput,
+      h('span', { class: 'sd-hint', id: hintId }, this.t('contact.attachmentsHint', { count: limits.maxFiles, size: limits.maxBytes / 1024 / 1024 })))
+  }
+
+  /** The selected files, or a message explaining why they cannot be sent. */
+  private checkFiles(files: File[]): string | null {
+    if (!files.length) return null
+    const limits = this.site!.attachments
+    const types = limits.accept.split(',')
+    if (files.length > limits.maxFiles) return this.t('error.tooManyFiles', { count: limits.maxFiles })
+    for (const file of files) {
+      if (!types.includes(file.type)) return this.t('error.fileType', { name: file.name })
+      if (file.size > limits.maxBytes) return this.t('error.fileTooLarge', { name: file.name })
+    }
+    return null
+  }
+
   /** Opens the floating form (no-op for inline forms). */
   open() {
     if (!this.dialog || !this.dialog.hidden) return
@@ -219,6 +244,12 @@ export class StaticDeskContact extends StaticDeskElement {
 
     const data = new FormData(this.form)
     const value = (name: string) => String(data.get(name) ?? '').trim()
+    const files = [...this.fileInput?.files ?? []]
+    const fileError = this.checkFiles(files)
+    if (fileError) {
+      this.status.textContent = fileError
+      return
+    }
 
     this.submit.disabled = true
     this.submit.textContent = this.t('contact.sending')
@@ -233,12 +264,17 @@ export class StaticDeskContact extends StaticDeskElement {
       else if (raw !== null && String(raw).trim()) fields[custom.id] = String(raw).trim()
     }
 
+    let file: File | undefined
     try {
+      const attachments: string[] = []
+      for (file of files) attachments.push(await this.runtime!.api.uploadAttachment(file, this.widget!.id))
+      file = undefined
       await this.runtime!.api.submitContact({
         name: value('name') || undefined,
         email: value('email'),
         message: value('message'),
         fields,
+        attachments: attachments.length ? attachments : undefined,
         widgetId: this.widget!.id,
         ...currentPage(),
         website: value('website') || undefined,
@@ -255,7 +291,9 @@ export class StaticDeskContact extends StaticDeskElement {
     }
     catch (error) {
       this.status.textContent = error instanceof ApiError
-        ? (error.status === 429 ? this.t('error.rateLimited') : config.errorMessage ?? this.t('error.generic'))
+        ? (error.status === 429
+            ? this.t('error.rateLimited')
+            : file ? this.t('error.upload', { name: file.name }) : config.errorMessage ?? this.t('error.generic'))
         : this.t('error.network')
     }
     finally {

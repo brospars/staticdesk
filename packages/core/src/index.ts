@@ -1,5 +1,6 @@
 export * from './database.types'
 export * from './embed/snippet'
+export * from './schemas/attachments'
 export * from './schemas/automation'
 export * from './schemas/contact'
 export * from './schemas/contact-form'

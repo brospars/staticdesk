@@ -4,7 +4,7 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".output/**", ".nuxt/**", "dist/**"]
+      "outputs": [".output/**", ".nuxt/**", "dist/**", "lib/**"]
     },
     "dev": {
       "cache": false,

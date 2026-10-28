@@ -1,0 +1,63 @@
+# Public entry point: the StaticDesk app and the Supabase APIs on one origin.
+# SITE_URL https://… gets a Let's Encrypt certificate automatically.
+{
+	admin off
+}
+
+(supabase) {
+	# Like Supabase's own gateway: the APIs accept requests from any origin
+	# (the widget uploads attachments straight to storage).
+	@preflight {
+		method OPTIONS
+		path /auth/v1/* /rest/v1/* /storage/v1/* /realtime/v1/*
+	}
+	handle @preflight {
+		header Access-Control-Allow-Origin "*"
+		header Access-Control-Allow-Methods "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS"
+		header Access-Control-Allow-Headers "authorization, apikey, content-type, x-client-info, x-upsert, x-supabase-api-version, prefer, range, accept-profile, content-profile, cache-control"
+		header Access-Control-Max-Age 86400
+		respond 204
+	}
+	@api path /auth/v1/* /rest/v1/* /storage/v1/* /realtime/v1/*
+	header @api ?Access-Control-Allow-Origin "*"
+	header @api ?Access-Control-Expose-Headers "Content-Range, X-Supabase-Api-Version"
+
+	handle_path /auth/v1/* {
+		reverse_proxy auth:9999
+	}
+	handle_path /rest/v1/* {
+		reverse_proxy rest:3000
+	}
+	handle_path /storage/v1/* {
+		request_body {
+			max_size 10MB
+		}
+		reverse_proxy storage:5000
+	}
+	# Realtime picks the tenant from the host name: "realtime-dev".
+	handle_path /realtime/v1/api/* {
+		rewrite * /api{uri}
+		reverse_proxy realtime:4000 {
+			header_up Host realtime-dev.supabase-realtime
+		}
+	}
+	handle_path /realtime/v1/* {
+		rewrite * /socket{uri}
+		reverse_proxy realtime:4000 {
+			header_up Host realtime-dev.supabase-realtime
+		}
+	}
+}
+
+{$SITE_URL} {
+	encode zstd gzip
+	import supabase
+	handle {
+		reverse_proxy app:3000
+	}
+}
+
+# Internal address of the Supabase APIs for the app server (NUXT_SUPABASE_INTERNAL_URL).
+:8000 {
+	import supabase
+}

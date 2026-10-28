@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { buildEmbedSnippet, siteSchema } from '../src'
+import { buildDocusaurusSnippet, buildEmbedSnippet, siteSchema } from '../src'
 
 describe('siteSchema', () => {
   it('normalizes the URL to its origin', () => {
@@ -49,5 +49,16 @@ describe('allowedOriginSchema', () => {
     for (const value of ['acme.dev', 'https://*', 'https://*.dev', 'ftp://acme.dev', 'https://a.*.acme.dev']) {
       expect(allowedOriginSchema.safeParse(value).success).toBe(false)
     }
+  })
+})
+
+describe('buildDocusaurusSnippet', () => {
+  it('only sets the script URL for self-hosted servers', () => {
+    const hosted = buildDocusaurusSnippet({ scriptUrl: 'https://staticdesk.app/widget.js', siteKey: 'pk_abc12345' })
+    expect(hosted).toContain('npm install @staticdesk/docusaurus-plugin')
+    expect(hosted).toContain(`['@staticdesk/docusaurus-plugin', { siteKey: 'pk_abc12345' }],`)
+
+    const selfHosted = buildDocusaurusSnippet({ scriptUrl: 'https://desk.acme.dev/widget.js', siteKey: 'pk_abc12345' })
+    expect(selfHosted).toContain(`{ siteKey: 'pk_abc12345', scriptUrl: 'https://desk.acme.dev/widget.js' }`)
   })
 })
