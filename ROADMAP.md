@@ -10,6 +10,13 @@
 
 Legend: 🧑 = manual action (account, configuration, decision) · 💻 = development
 
+## Status (2026-10-28)
+
+- Done: phases 2 and 3 (except the comments, reactions and reviews elements, planned in phase 7). **Next: phase 4** (contact form: custom fields, team notifications, plain HTML form mode, webhooks).
+- Not yet verified against a real Supabase stack (Auth, PostgREST): sign-in, onboarding writes, invitations and the public API. They were tested with unit tests, pgTAP on Postgres 17 and a mocked REST server. Run `npm run db:start` and try the flows end to end.
+- GitHub Actions (CI, release) have not run yet: check the first run, in particular the database job and the generated types check.
+- Open decision: license (AGPL-3.0 applied everywhere, MIT considered for the widget and plugins).
+
 ---
 
 ## Phase 0: name, brand and key decisions

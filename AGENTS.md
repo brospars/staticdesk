@@ -51,5 +51,32 @@ Nuxt 3 / Nuxt UI 2-3 / Tailwind 3 / Zod 3 examples.
   in the shadow root, never use innerHTML with visitor or site data (use `h()`),
   and add every visible string to `src/i18n.ts` in English and French.
 - Regenerate `packages/core/src/database.types.ts` with `npm run db:types` after a migration.
-- Billing code must be inert when `STATICDESK_EDITION=selfhost`.
+- Billing code must be inert when `NUXT_PUBLIC_EDITION=selfhost` (`useRuntimeConfig().public.edition`).
 - Conventional Commits. Add a changeset when a published package changes.
+
+## Where things are
+
+- Env vars: `apps/web/.env.example` (runtime config keys in `apps/web/nuxt.config.ts`).
+- Migrations: `supabase/migrations`; seed (dev user `dev@staticdesk.local` / `password`,
+  site key `pk_demo000000000000000000`): `supabase/seed.sql`.
+- Dashboard pages: `apps/web/app/pages/app/*` (onboarding, sites, settings/members);
+  current workspace via `useWorkspaces()`.
+- Email: `useMailer()` in `apps/web/server/utils/mailer.ts` (`log` or `resend` driver);
+  templates in `apps/web/server/emails`.
+- Widget elements: `packages/widget/src/elements/*` (extend `StaticDeskElement`).
+- Release: Changesets + `.github/workflows/release.yml` (needs the `NPM_TOKEN` secret).
+
+## Known pitfalls
+
+- `@nuxtjs/supabase` imports `h3` without declaring it: the root `package.json` pins
+  `h3` v1 so it is the hoisted copy (h3 v2 breaks SSR on Nuxt 4).
+- `#supabase/database` is aliased in `nuxt.config.ts` so server routes keep their
+  database types when typechecked from the app (typed `$fetch`).
+- Postgres function arguments without a default are generated as required non-null
+  strings: give optional parameters `default null`.
+- Type generation needs `sslmode=disable` on the local URL (see `npm run db:types`).
+- Playwright: a page on a public origin loading from localhost needs
+  `permissions: ['local-network-access']` (see `apps/web/test/e2e/widget.spec.ts`).
+- Sandboxed environments may not pull every Supabase Docker image. The Postgres image
+  alone (`public.ecr.aws/supabase/postgres`) runs migrations and pgTAP tests: apply
+  `supabase/migrations/*.sql` then each file in `supabase/tests/database` with `psql`.
