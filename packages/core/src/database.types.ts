@@ -5,7 +5,39 @@ export type Database = {
   
   "public": {
           Tables: {
-            "auto_replies": {
+            "attachments": {
+                  Row: {
+                    "content_type": string,"created_at": string,"file_name": string,"id": string,"message_id": string | null,"site_id": string,"size_bytes": number,"storage_path": string,"workspace_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "content_type": string,"created_at"?: string,"file_name": string,"id"?: string,"message_id"?: string | null,"site_id": string,"size_bytes": number,"storage_path": string,"workspace_id": string
+                  }
+                  Update: {
+                    "content_type"?: string,"created_at"?: string,"file_name"?: string,"id"?: string,"message_id"?: string | null,"site_id"?: string,"size_bytes"?: number,"storage_path"?: string,"workspace_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "attachments_message_id_fkey"
+      columns: ["message_id"]
+isOneToOne: false
+      referencedRelation: "messages"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "attachments_site_id_workspace_id_fkey"
+      columns: ["site_id","workspace_id"]
+isOneToOne: false
+      referencedRelation: "sites"
+      referencedColumns: ["id","workspace_id"]
+    },{
+      foreignKeyName: "attachments_workspace_id_fkey"
+      columns: ["workspace_id"]
+isOneToOne: false
+      referencedRelation: "workspaces"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"auto_replies": {
                   Row: {
                     "add_labels": (string)[],"assignee_id": string | null,"body": string | null,"conditions": NonNullable<Json>,"created_at": string,"delay_minutes": number,"enabled": boolean,"id": string,"name": string,"position": number,"send_email": boolean,"site_id": string | null,"subject": string | null,"trigger": Database["public"]['Enums']["auto_reply_trigger"],"updated_at": string,"workspace_id": string
                   }
@@ -536,7 +568,7 @@ isOneToOne: false
         isSetofReturn: true
       } },
 "submit_contact":
-{ Args: { "email": string,"fields"?: Json,"message": string,"name"?: string,"page_id": string,"page_url"?: string,"site_id": string,"widget_id"?: string }; Returns: string
+{ Args: { "attachment_ids"?: (string)[],"email": string,"fields"?: Json,"message": string,"name"?: string,"page_id": string,"page_url"?: string,"site_id": string,"widget_id"?: string }; Returns: string
                            },
 "suppress_email":
 { Args: { "address": string,"reason": string }; Returns: number

@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import type { AttachmentSummary } from './attachments'
+
 export const WEBHOOK_KINDS = ['custom', 'slack', 'discord'] as const
 export type WebhookKind = (typeof WEBHOOK_KINDS)[number]
 
@@ -53,5 +55,7 @@ export interface ContactSubmittedPayload {
   contact: { email: string, name: string | null }
   message: string
   fields: { id: string, label: string, value: string }[]
+  /** Files attached by the visitor, downloadable from the dashboard. */
+  attachments: AttachmentSummary[]
   page: { id: string, url: string | null }
 }
